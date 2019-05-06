@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Julia Set</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="">
+<style>
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  
+  #canvas-parent {
+    text-align: center;
+  }
+
+  #canvas {
+    height: 600px;
+    width: 600px;
+  }
+
+  .parameters {
+    display: table;
+    min-width: 300px;
+    margin: 0 auto;
+  }
+
+  .parameter {
+    display: table-row;
+  }
+
+  .parameter input[type="text"] {
+    margin: 4px 2px;
+    width: 100px;
+  }
+
+  .parameter .lt {
+    display: table-cell;
+    text-align: right;
+  }
+
+  .parameter .rt {
+    display: table-cell;
+    text-align: left;
+  }
+
+</style>
+
+</head>
+<body>
+
+<div id="canvas-parent">
+  <canvas id="canvas" width="2400" height="2400"></canvas>
+  <div class="parameters">
+    <div class="parameter">
+      <p class="lt">c = </p>
+      <p class="rt"><input id="cs-re" type="text" value="-0.70176"> + <input id="cs-im" type="text" value="-0.3842">im</p>
+    </div>
+    <div class="parameter">
+      <p class="lt">center = </p>
+      <p class="rt">(<input id="center-x" type="text" value="0.00">, <input id="center-y" type="text" value="0.00">)</p>
+    </div>
+    <div class="parameter">
+      <p class="lt">zoom = </p>
+      <p class="rt"><input id="zoom" type="number" value="100" step="1" min="1">%</p>
+    </div>
+    <div class="parameter">
+      <p class="lt">resolution = </p>
+      <p class="rt"><input id="resolution" type="number" value="75" step="1" min="1"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  var Complex = function(re, im){
+    this.re = re;
+    this.im = im;
+  }
+
+  Complex.prototype = {
+    add: function(c) {
+      return new Complex(this.re + c.re, this.im + c.im);
+    },
+
+    mul: function(c) {
+      var re = this.re * c.re - this.im * c.im;
+      var im = this.re * c.im + this.im * c.re;
+      return new Complex(re, im);
+    },
+
+    abs: function() {
+      return Math.sqrt(this.re * this.re + this.im * this.im);
+    },
+
+    abs2: function() {
+      return this.re * this.re + this.im * this.im;
+    },
+
+    toString: function() {
+      if (this.im >= 0) {
+        return this.re + " + " + this.im + "i";
+      } else {
+        return this.re + " - " + -this.im + "i";
+      }
+    }
+  }
+
+  var canvas;
+  var ctx;
+
+  window.onload = function() {
+    var inputs = document.getElementsByTagName("input");
+    var i;
+
+    for (i = 0; i < inputs.length; i++) {
+      inputs[i].onchange = refresh;
+    }
+
+    canvas = document.getElementById('canvas');
+    ctx = canvas.getContext('2d');
+
+    refresh();
+  }
+
+  function clear() {
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  function calculation() {
+    var calcLimit = 500;
+
+    var csre = +document.getElementById('cs-re').value;
+    var csim = +document.getElementById('cs-im').value;
+    var cs = new Complex(csre, csim);
+    var centerX = +document.getElementById('center-x').value;
+    var centerY = +document.getElementById('center-y').value;
+
+    var resolution = +document.getElementById('resolution').value;
+    var zoom = +document.getElementById('zoom').value;
+
+    var size = resolution;
+    var min = -1.0 * (1.0 / (zoom / 100));
+    var max =  1.0 * (1.0 / (zoom / 100));
+
+    var zs = setup(size, min, max, centerX, centerY);
+    var output = initOutput(size, calcLimit);
+
+    var x, y, n;
+    var zi;
+
+    for (y = 0; y < size; y++) {
+      for (x = 0; x < size; x++) {
+        zi = zs[y][x];
+        for (n = 0; n < calcLimit; n++) {
+          if (zi.abs2() > 4.0) {
+            output[y][x] = n;
+            break;
+          }
+
+          zi = zi.mul(zi).add(cs);
+        }
+      }
+    }
+
+    return output;
+  }
+
+  function setup(size, min, max, centerX, centerY) {
+    var xv = linspace(min + centerX, max + centerX, size);
+    var yv = linspace(min + centerY, max + centerY, size);
+    var x, y;
+
+    var mat2 = [];
+    for (y = 0; y < size; y++) {
+      var mat = [];
+      for (x = 0; x < size; x++) {
+        mat.push(new Complex(xv[x], yv[y]))
+      }
+      mat2.push(mat);
+    }
+
+    return mat2;
+  }
+
+  function linspace(min, max, size) {
+    var vec = [];
+    var diff = max - min
+    var delta = diff / size
+
+    for (i = 0; i < size; i++) {
+         vec[i] = min + (i * delta)
+    }
+
+    return vec;
+  }
+
+  function initOutput(size, calcLimit) {
+    var output = [];
+    var x, y;
+    for (y = 0; y < size; y++) {
+      output[y] = [];
+      for (x = 0; x < size; x++) {
+        output[y][x] = calcLimit;
+      }
+    }
+
+    return output;
+  }
+  
+  function refresh() {
+    var julia = calculation();
+    clear();
+    draw(julia);
+  }
+
+  function colorset() {
+    var palette = [
+    "#3f32ae",
+    "#e30ec2",
+    "#baaaff",
+    "#ffffff",
+    "#ff949d",
+    "#e80200",
+    "#7a243d",
+    "#000000",
+    "#195648",
+    "#6a8927",
+    "#16ed75",
+    "#32c1c3",
+    "#057fc1",
+    "#6e4e23",
+    "#c98f4c",
+    "#efe305",
+    ];
+
+    return palette;
+  }
+
+  function draw(julia) {
+    var resolution = +document.getElementById('resolution').value;
+    var colors = colorset();
+
+    var x, y;
+    var n;
+    var len = julia.length;
+    var block = canvas.width / resolution;
+
+    for (y = 0; y < len; y++) {
+      for (x = 0; x < len; x++) {
+        n = julia[y][x];
+        if (n == 500) {
+          ctx.fillStyle = "rgb(0, 0, 0)";  
+        } else {
+          ctx.fillStyle = colors[n % 16];
+        }
+        ctx.fillRect(x * block, y * block, block, block);
+      }
+    }
+  }
+
+</script>
+</body>
+</html>
