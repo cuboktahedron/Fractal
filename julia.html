@@ -121,7 +121,77 @@
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext('2d');
 
+    addMouseEvent(canvas);
+
     refresh();
+  }
+
+  function addMouseEvent(canvas) {
+    var downed = -1;
+    var prevPoint;
+
+    canvas.oncontextmenu = function() {
+      return false;
+    }
+
+    canvas.onmousedown = function(ev) {
+      var centerX = +document.getElementById('center-x').value;
+      var centerY = +document.getElementById('center-y').value;
+
+      downed = ev.button;
+      prevPoint = { x: centerX, y: centerY };
+    }
+
+    canvas.ondblclick = function(ev) {
+      var centerXElem = document.getElementById('center-x')
+      var centerYElem = document.getElementById('center-y');
+      var zoom = +document.getElementById('zoom').value;
+
+      var diffX = ev.layerX - (canvas.clientWidth / 2);
+      var diffY = ev.layerY - (canvas.clientHeight / 2);
+
+      centerXElem.value = +centerXElem.value + ((diffX / (canvas.clientWidth / 2)) * (100 / zoom)); 
+      centerYElem.value = +centerYElem.value + ((diffY / (canvas.clientHeight / 2)) * (100 / zoom));
+
+      refresh();
+    }
+
+    canvas.onmousemove = function(ev) {
+      if (downed !== 0 && downed !== 2) {
+        return;
+      }
+
+      var centerXElem = document.getElementById('center-x');
+      var centerYElem = document.getElementById('center-y');
+      var csre = document.getElementById('cs-re');
+      var csim = document.getElementById('cs-im');
+      var zoom = +document.getElementById('zoom').value;
+
+      if (downed === 0) { // left button
+        centerXElem.value = +centerXElem.value - ((ev.movementX / (canvas.clientWidth / 2)) * (100 / zoom)); 
+        centerYElem.value = +centerYElem.value - ((ev.movementY / (canvas.clientHeight / 2)) * (100 / zoom));
+
+        refresh();
+        return;
+      }
+
+      if (downed === 2) { // right button
+        csre.value = +csre.value + (ev.movementX / (zoom * 10));
+        csim.value = +csim.value + (ev.movementY / (zoom * 10));
+
+        refresh();
+
+        return;
+      }
+    }
+
+    canvas.onmouseup = function(ev) {
+      if (downed !== ev.button) {
+        return;
+      }
+    
+      downed = -1;
+    }
   }
 
   function clear() {
