@@ -107,9 +107,54 @@
     }
   }
 
+  var ParameterView = function() {
+    this.$zoom = document.getElementById('zoom');
+  }
+
+  ParameterView.prototype = {
+    zoom: function() {
+      var value;
+
+      if (arguments.length === 0) {
+        return +this.$zoom.value;
+      } else {
+        value = Number(arguments[0]);
+        if (isNaN(value)) {
+          return;
+        } else if (value <= 0) {
+          value = 1;
+        }
+
+        this.$zoom.value = value;
+      }
+    },
+
+    zoomIn: function() {
+      var zoom = this.zoom();
+      var value = Math.floor(zoom * Math.sqrt(2))
+      if (value === zoom) {
+        value++;
+      }
+
+      this.zoom(value);
+    }, 
+
+    zoomOut: function() {
+      var zoom = this.zoom();
+      var value = Math.floor(zoom / Math.sqrt(2))
+      if (value === zoom) {
+        value--;
+      }
+
+      this.zoom(value);
+    }
+  }
+
+  var paramView = new ParameterView();
+
   var canvas;
   var ctx;
-
+  
   window.onload = function() {
     var inputs = document.getElementsByTagName("input");
     var i;
@@ -145,7 +190,7 @@
     canvas.ondblclick = function(ev) {
       var centerXElem = document.getElementById('center-x')
       var centerYElem = document.getElementById('center-y');
-      var zoom = +document.getElementById('zoom').value;
+      var zoom = paramView.zoom();
 
       var diffX = ev.layerX - (canvas.clientWidth / 2);
       var diffY = ev.layerY - (canvas.clientHeight / 2);
@@ -165,7 +210,7 @@
       var centerYElem = document.getElementById('center-y');
       var csre = document.getElementById('cs-re');
       var csim = document.getElementById('cs-im');
-      var zoom = +document.getElementById('zoom').value;
+      var zoom = paramView.zoom();
 
       if (downed === 0) { // left button
         centerXElem.value = +centerXElem.value - ((ev.movementX / (canvas.clientWidth / 2)) * (100 / zoom)); 
@@ -192,6 +237,18 @@
     
       downed = -1;
     }
+
+    canvas.onmousewheel = function(ev) {
+      if (ev.wheelDelta > 0) {
+        paramView.zoomIn();
+      } else {
+        paramView.zoomOut();
+      }
+
+      refresh();
+
+      ev.preventDefault();
+    }
   }
 
   function clear() {
@@ -209,7 +266,7 @@
     var centerY = +document.getElementById('center-y').value;
 
     var resolution = +document.getElementById('resolution').value;
-    var zoom = +document.getElementById('zoom').value;
+    var zoom = paramView.zoom();
 
     var size = resolution;
     var min = -1.0 * (1.0 / (zoom / 100));
