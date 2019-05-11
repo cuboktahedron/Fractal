@@ -143,6 +143,7 @@
   <div id="operation">
     <input id="op-fullscreen" type="button" value="FullScreen">
     <input id="op-save" type="button" value="Save">
+    <input id="op-download" type="button" value="Download">
   </div>
   <div id="notice">
   </div>
@@ -376,6 +377,7 @@
   var OperationView = function() {
     this.$fullScreen = document.getElementById('op-fullscreen');
     this.$save = document.getElementById('op-save');
+    this.$download = document.getElementById('op-download');
 
     this.$fullScreen.onclick = function() {
       canvas.requestFullscreen();
@@ -394,6 +396,27 @@
       };
 
       snapshotsView.add(data);
+    }
+
+    this.$download.onclick = function() {
+      var filename = new Date().getTime();
+      var a = document.createElement('a');
+
+      if (canvas.toBlob) {
+        canvas.toBlob(function (blob) {
+          a.href = URL.createObjectURL(blob);
+          a.download = filename + '.png';
+          a.click();
+        });
+      } else if (canvas.msToBlob) {
+        a.href = URL.createObjectURL(canvas.msToBlob());
+        a.download = filename + '.png';;
+        a.click();
+      } else {
+        a.href = canvas.toDataURL('image/png');
+        a.download = filename;
+        a.click();
+      }
     }
   };
 
