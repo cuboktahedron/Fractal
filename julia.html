@@ -8,12 +8,14 @@
 <style>
 
   body {
+    background: black;
+    color: white;
     margin: 0;
-    padding: 0;
+    padding: 4px;
   }
   
   #canvas-parent {
-    text-align: center;
+    float: left;
   }
 
   #canvas {
@@ -21,9 +23,16 @@
     width: 600px;
   }
 
+  #side {
+    float: left;
+    min-width: 300px;
+    max-width: 600px;
+    padding: 4px;
+  }
+
   .parameters {
     display: table;
-    min-width: 300px;
+    width: 100%;
     margin: 0 auto;
   }
 
@@ -33,7 +42,7 @@
 
   .parameter input[type="text"] {
     margin: 4px 2px;
-    width: 100px;
+    width: 150px;
   }
 
   .parameter .lt {
@@ -53,6 +62,8 @@
 
 <div id="canvas-parent">
   <canvas id="canvas" width="2400" height="2400"></canvas>
+</div>
+<div id="side">
   <div class="parameters">
     <div class="parameter">
       <p class="lt">c&nbsp;=&nbsp;</p>
@@ -78,7 +89,6 @@
   <div id="notice">
   </div>
 </div>
-
 <script>
   var Complex = function(re, im){
     this.re = re;
