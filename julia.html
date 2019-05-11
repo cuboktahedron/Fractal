@@ -75,6 +75,8 @@
       <p class="rt"><input id="max-Repeat" type="number" value="500" step="1" min="1"></p>
     </div>
   </div>
+  <div id="notice">
+  </div>
 </div>
 
 <script>
@@ -111,6 +113,37 @@
     }
   }
 
+  var Diagnosis = {
+    elapsedTime: function(f) {
+      var before = new Date();
+      f();
+      return new Date() - before;
+    }
+  };
+
+  var NoticeView = function() {
+    this.$notice = document.getElementById('notice');
+  }
+
+  NoticeView.prototype = {
+    time: function() {
+      var value;
+      var sec
+
+      if (arguments.length === 0) {
+        return 
+      } else {
+        value = Number(arguments[0]);
+        if (isNaN(value)) {
+          return;
+        }
+
+        sec = value / 1000.0;
+        this.$notice.innerText = 'processing time: ' + sec + 'sec';
+      }
+    }
+  };
+
   var ParameterView = function() {
     this.$centerX = document.getElementById('center-x');
     this.$centerY = document.getElementById('center-y');
@@ -119,7 +152,7 @@
     this.$zoom = document.getElementById('zoom');
     this.$resolution = document.getElementById('resolution');
     this.$maxRepeat = document.getElementById('max-Repeat');
-  }
+  };
 
   ParameterView.prototype = {
     centerX: function() {
@@ -267,9 +300,10 @@
 
       this.zoom(value);
     }
-  }
+  };
 
   var paramView = new ParameterView();
+  var noticeView = new NoticeView();
 
   var canvas;
   var ctx;
@@ -480,9 +514,13 @@
   }
   
   function refresh() {
-    var julia = calculation();
-    clear();
-    draw(julia);
+    var elapsedTime = Diagnosis.elapsedTime(function() {
+      var julia = calculation();
+      clear();
+      draw(julia);
+    });
+
+    noticeView.time(elapsedTime);
   }
 
   function colorset() {
