@@ -70,6 +70,10 @@
       <p class="lt">resolution = </p>
       <p class="rt"><input id="resolution" type="number" value="75" step="1" min="1"></p>
     </div>
+    <div class="parameter">
+      <p class="lt">maxRepeat = </p>
+      <p class="rt"><input id="max-Repeat" type="number" value="500" step="1" min="1"></p>
+    </div>
   </div>
 </div>
 
@@ -114,6 +118,7 @@
     this.$csim = document.getElementById('cs-im');
     this.$zoom = document.getElementById('zoom');
     this.$resolution = document.getElementById('resolution');
+    this.$maxRepeat = document.getElementById('max-Repeat');
   }
 
   ParameterView.prototype = {
@@ -223,6 +228,23 @@
         }
 
         this.$resolution.value = value;
+      }
+    },
+
+    maxRepeat: function() {
+      if (arguments.length === 0) {
+        return +this.$maxRepeat.value;
+      } else {
+        value = Number(arguments[0]);
+        if (isNaN(value)) {
+          return;
+        } else if (value >= 10000) {
+          value = 10000;
+        } else if (value <= 0) {
+          value = 1;
+        }
+
+        this.$maxRepeat.value = value;
       }
     },
 
@@ -377,7 +399,7 @@
   }
 
   function calculation() {
-    var calcLimit = 500;
+    var maxRepeat = paramView.maxRepeat();
 
     var csre = paramView.csre();
     var csim = paramView.csim();
@@ -393,7 +415,7 @@
     var max =  1.0 * (1.0 / (zoom / 100));
 
     var zs = setup(size, min, max, centerX, centerY);
-    var output = initOutput(size, calcLimit);
+    var output = initOutput(size, maxRepeat);
 
     var x, y, n;
     var zi;
@@ -401,7 +423,7 @@
     for (y = 0; y < size; y++) {
       for (x = 0; x < size; x++) {
         zi = zs[y][x];
-        for (n = 0; n < calcLimit; n++) {
+        for (n = 0; n < maxRepeat; n++) {
           if (zi.abs2() > 4.0) {
             output[y][x] = n;
             break;
@@ -444,13 +466,13 @@
     return vec;
   }
 
-  function initOutput(size, calcLimit) {
+  function initOutput(size, maxRepeat) {
     var output = [];
     var x, y;
     for (y = 0; y < size; y++) {
       output[y] = [];
       for (x = 0; x < size; x++) {
-        output[y][x] = calcLimit;
+        output[y][x] = maxRepeat;
       }
     }
 
@@ -488,6 +510,7 @@
 
   function draw(julia) {
     var resolution = paramView.resolution();
+    var maxRepeat = paramView.maxRepeat();
     var colors = colorset();
 
     var x, y;
@@ -498,7 +521,7 @@
     for (y = 0; y < len; y++) {
       for (x = 0; x < len; x++) {
         n = julia[y][x];
-        if (n == 500) {
+        if (n == maxRepeat) {
           ctx.fillStyle = "rgb(0, 0, 0)";  
         } else {
           ctx.fillStyle = colors[n % 16];
