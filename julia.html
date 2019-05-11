@@ -30,6 +30,10 @@
     padding: 4px;
   }
 
+  #side > div {
+    margin-bottom: 16px;
+  }
+
   .parameters {
     display: table;
     width: 100%;
@@ -85,6 +89,9 @@
       <p class="lt">maxRepeat&nbsp;=&nbsp;</p>
       <p class="rt"><input id="max-Repeat" type="number" value="500" step="1" min="1"></p>
     </div>
+  </div>
+  <div id="operation">
+    <input id="op-fullscreen" type="button" value="FullScreen">
   </div>
   <div id="notice">
   </div>
@@ -312,7 +319,16 @@
     }
   };
 
+  var OperationView = function() {
+    this.$fullScreen = document.getElementById('op-fullscreen');
+
+    this.$fullScreen.onclick = function() {
+      canvas.requestFullscreen();
+    }
+  };
+
   var paramView = new ParameterView();
+  var operationView = new OperationView();
   var noticeView = new NoticeView();
 
   var canvas;
