@@ -339,7 +339,7 @@
     var i;
 
     for (i = 0; i < inputs.length; i++) {
-      inputs[i].onchange = refresh;
+      inputs[i].onchange = function() { refresh() };
     }
 
     canvas = document.getElementById('canvas');
@@ -402,7 +402,7 @@
         paramView.centerX(newCenterX);
         paramView.centerY(newCenterY);
 
-        refresh();
+        refresh(true);
         return;
       }
 
@@ -412,7 +412,7 @@
         paramView.csre(newCsre);
         paramView.csim(newCsim);
 
-        refresh();
+        refresh(true);
 
         return;
       }
@@ -424,6 +424,8 @@
       }
     
       downed = -1;
+
+      refresh();
     }
 
     canvas.onmousewheel = function(ev) {
@@ -458,7 +460,7 @@
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
-  function calculation() {
+  function calculation(resolution) {
     var maxRepeat = paramView.maxRepeat();
 
     var csre = paramView.csre();
@@ -467,7 +469,6 @@
     var centerX = paramView.centerX();
     var centerY = paramView.centerY();
 
-    var resolution = paramView.resolution();
     var zoom = paramView.zoom();
 
     var size = resolution;
@@ -539,11 +540,16 @@
     return output;
   }
   
-  function refresh() {
+  function refresh(rough) {
     var elapsedTime = Diagnosis.elapsedTime(function() {
-      var julia = calculation();
+      var resolution = paramView.resolution();
+      if (rough && resolution > 100) {
+        resolution = 100;
+      }
+
+      var julia = calculation(resolution);
       clear();
-      draw(julia);
+      draw(julia, resolution);
     });
 
     noticeView.time(elapsedTime);
@@ -572,8 +578,7 @@
     return palette;
   }
 
-  function draw(julia) {
-    var resolution = paramView.resolution();
+  function draw(julia, resolution) {
     var maxRepeat = paramView.maxRepeat();
     var colors = colorset();
 
