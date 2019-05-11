@@ -15,12 +15,18 @@
   }
   
   #canvas-parent {
+    border: 8px solid white;
     float: left;
+    height: 600px;
   }
 
   #canvas {
     height: 600px;
     width: 600px;
+  }
+
+  #canvas:hover {
+    cursor: crosshair;
   }
 
   #side {
@@ -59,6 +65,50 @@
     text-align: left;
   }
 
+  #snapshots-parent {
+    width: 100%;
+  }
+
+  #snapshots {
+    clear: both;
+    padding: 0;
+    margin: 0;
+  }
+
+  #snapshots .snapshot {
+    box-sizing: border-box;
+    display: block;
+    float: left;
+    height: 104px;
+    margin: 2px 4px;
+    position: relative;
+    width: 100px;
+  }
+
+  #snapshots .snapshot:hover {
+    border: dashed 2px white;
+    cursor: pointer;
+  }
+
+  #snapshots .snapshot .del {
+    background: white;
+    border: dashed 1px black;
+    color: black;
+    height: 20px;
+    line-height: 20px;
+    position: absolute;
+    right: 2px;
+    text-align: center;
+    top: 2px;
+    width: 20px;
+  }
+
+  #snapshots .snapshot .del:hover {
+    background: black;
+    color: white;
+    cursor: pointer;
+  }
+
 </style>
 
 </head>
@@ -92,9 +142,13 @@
   </div>
   <div id="operation">
     <input id="op-fullscreen" type="button" value="FullScreen">
+    <input id="op-save" type="button" value="Save">
   </div>
   <div id="notice">
   </div>
+</div>
+<div id="snapshots-parent">
+  <div id="snapshots"></div>
 </div>
 <script>
   var Complex = function(re, im){
@@ -321,15 +375,92 @@
 
   var OperationView = function() {
     this.$fullScreen = document.getElementById('op-fullscreen');
+    this.$save = document.getElementById('op-save');
 
     this.$fullScreen.onclick = function() {
       canvas.requestFullscreen();
     }
+
+    this.$save.onclick = function() {
+      var data = {};
+
+      data.imageUrlData = canvas.toDataURL();
+      data.params = {
+        cs: new Complex(paramView.csre(), paramView.csim()),
+        center: new Complex(paramView.centerX(), paramView.centerY()),
+        zoom: paramView.zoom(),
+        resolution: paramView.resolution(),
+        maxRepeat: paramView.maxRepeat(),
+      };
+
+      snapshotsView.add(data);
+    }
   };
+
+  var SnapshotsView = function() {
+    this.$snapshots = document.getElementById('snapshots');
+  };
+
+  SnapshotsView.prototype = {
+
+    add: function(data) {
+      //
+      // data.imageUrlData: 
+      // data.params;
+      //
+      var params = data.params;
+
+      var snapshots = this.$snapshots;
+      var snapshot = document.createElement('div');
+      var sumbnailCanvas = document.createElement('canvas');
+      var sumbnailCtx = sumbnailCanvas.getContext('2d');
+      var image = new Image();
+
+      sumbnailCanvas.width = 100;
+      sumbnailCanvas.height = 100;
+      sumbnailCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height,
+        0, 0, sumbnailCanvas.width, sumbnailCanvas.height);
+      image.src = sumbnailCanvas.toDataURL();
+
+      image.title = "cs: " + params.cs.toString() + "\n"
+        + "center: " + params.center + "\n"
+        + "zoom: " + params.zoom + "\n"
+        + "resolution: " + params.resolution + "\n"
+        + "maxRepeat: " + params.maxRepeat;
+
+      snapshot.className = "snapshot";
+      snapshot.appendChild(image);
+      snapshots.appendChild(snapshot);
+
+      image.onload = function() {
+        var delBtn = document.createElement('div');
+        delBtn.className = "del";
+        delBtn.innerText = "x";
+        snapshot.appendChild(delBtn);
+
+        delBtn.onclick = function() {
+          snapshots.removeChild(snapshot);
+        };
+
+        image.onclick = function() {
+          paramView.csre(params.cs.re);
+          paramView.csim(params.cs.im);
+          paramView.centerX(params.center.re);
+          paramView.centerY(params.center.im);
+          paramView.zoom(params.zoom);
+          paramView.resolution(params.resolution);
+          paramView.maxRepeat(params.maxRepeat);
+
+          refresh();
+        };
+      }
+    }
+  }
 
   var paramView = new ParameterView();
   var operationView = new OperationView();
   var noticeView = new NoticeView();
+  var snapshotsView = new SnapshotsView();
 
   var canvas;
   var ctx;
