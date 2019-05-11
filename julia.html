@@ -239,11 +239,25 @@
     }
 
     canvas.onmousewheel = function(ev) {
+      var centerXElem = document.getElementById('center-x')
+      var centerYElem = document.getElementById('center-y');
+
+      var diffX = ev.layerX - (canvas.clientWidth / 2);
+      var diffY = ev.layerY - (canvas.clientHeight / 2);
+
+      var px = +centerXElem.value + ((diffX / (canvas.clientWidth / 2)) * (100 /  paramView.zoom())); 
+      var py = +centerYElem.value + ((diffY / (canvas.clientHeight / 2)) * (100 /  paramView.zoom()));
+
       if (ev.wheelDelta > 0) {
         paramView.zoomIn();
       } else {
         paramView.zoomOut();
       }
+
+      var newCenterX = px - ((diffX / (canvas.clientWidth / 2)) * (100 / paramView.zoom())); 
+      var newCenterY = py - ((diffY / (canvas.clientHeight / 2)) * (100 / paramView.zoom()));
+      centerXElem.value = newCenterX;
+      centerYElem.value = newCenterY;
 
       refresh();
 
