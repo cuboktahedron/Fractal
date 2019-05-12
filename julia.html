@@ -139,6 +139,10 @@
       <p class="lt">maxRepeat&nbsp;=&nbsp;</p>
       <p class="rt"><input id="max-Repeat" type="number" value="500" step="1" min="1"></p>
     </div>
+    <div class="parameter">
+      <p class="lt">skip&nbsp;=&nbsp;</p>
+      <p class="rt"><input id="skip" type="number" value="0" step="1" min="0"></p>
+    </div>
   </div>
   <div id="operation">
     <input id="op-fullscreen" type="button" value="FullScreen">
@@ -224,6 +228,7 @@
     this.$zoom = document.getElementById('zoom');
     this.$resolution = document.getElementById('resolution');
     this.$maxRepeat = document.getElementById('max-Repeat');
+    this.$skip = document.getElementById('skip');
   };
 
   ParameterView.prototype = {
@@ -350,6 +355,21 @@
         }
 
         this.$maxRepeat.value = value;
+      }
+    },
+
+    skip: function() {
+      if (arguments.length === 0) {
+        return +this.$skip.value;
+      } else {
+        value = Number(arguments[0]);
+        if (isNaN(value)) {
+          return;
+        } else if (value < 0) {
+          value = 0;
+        }
+
+        this.$skip.value = value;
       }
     },
 
@@ -734,6 +754,7 @@
 
   function draw(julia, resolution) {
     var maxRepeat = paramView.maxRepeat();
+    var skip = paramView.skip();
     var colors = colorset();
 
     var x, y;
@@ -744,7 +765,7 @@
     for (y = 0; y < len; y++) {
       for (x = 0; x < len; x++) {
         n = julia[y][x];
-        if (n == maxRepeat) {
+        if (n < skip || n == maxRepeat) {
           ctx.fillStyle = "rgb(0, 0, 0)";  
         } else {
           ctx.fillStyle = colors[n % 16];
