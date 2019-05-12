@@ -1,7 +1,7 @@
 var Complex = function(re, im) {
   this.re = re;
   this.im = im;
-}
+};
 
 Complex.prototype = {
   add: function(c) {
@@ -29,7 +29,7 @@ Complex.prototype = {
       return this.re + " - " + -this.im + "i";
     }
   }
-}
+};
 
 var Diagnosis = {
   elapsedTime: function(f) {
@@ -38,3 +38,24 @@ var Diagnosis = {
     return new Date() - before;
   }
 };
+
+var SimpleEventEmitter = function() {
+  this.handlers = {};
+};
+
+SimpleEventEmitter.prototype = {
+  on: function(name, handler, callerObj) {
+    if (callerObj == null) {
+      this.handlers[name] = handler;
+    } else {
+      this.handlers[name] = function(palyload) { handler.call(callerObj, palyload) }
+    }
+  },
+
+  emit(name, payload) {
+    this.handlers[name](payload);
+  }
+};
+
+var eventer  = new SimpleEventEmitter();
+
