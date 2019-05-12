@@ -1,41 +1,37 @@
 'use strict';
 
-var paramView = new ParameterView();
-var canvasView = new CanvasView(paramView);
-var operationView = new OperationView();
-var snapshotsView = new SnapshotsView();
-var noticeView = new NoticeView();
-var colorsetsView = new ColorsetsView();
+const paramView = new ParameterView();
+const canvasView = new CanvasView(paramView);
+const operationView = new OperationView();
+const snapshotsView = new SnapshotsView();
+const noticeView = new NoticeView();
+const colorsetsView = new ColorsetsView();
 
 window.onload = function() {
   colorsetsView.init();
 }
 
 function calculation(resolution) {
-  var maxRepeat = paramView.maxRepeat();
+  const maxRepeat = paramView.maxRepeat();
 
-  var csre = paramView.csre();
-  var csim = paramView.csim();
-  var cs = new Complex(csre, csim);
-  var centerX = paramView.centerX();
-  var centerY = paramView.centerY();
+  const csre = paramView.csre();
+  const csim = paramView.csim();
+  const cs = new Complex(csre, csim);
+  const centerX = paramView.centerX();
+  const centerY = paramView.centerY();
+  const zoom = paramView.zoom();
+  const size = resolution;
+  const min = -1.0 * (1.0 / (zoom / 100));
+  const max =  1.0 * (1.0 / (zoom / 100));
+  const zs = setup(size, min, max, centerX, centerY);
+  const output = initOutput(size, maxRepeat);
 
-  var zoom = paramView.zoom();
+  for (let y = 0; y < size; y++) {
+    let zi;
 
-  var size = resolution;
-  var min = -1.0 * (1.0 / (zoom / 100));
-  var max =  1.0 * (1.0 / (zoom / 100));
-
-  var zs = setup(size, min, max, centerX, centerY);
-  var output = initOutput(size, maxRepeat);
-
-  var x, y, n;
-  var zi;
-
-  for (y = 0; y < size; y++) {
-    for (x = 0; x < size; x++) {
+    for (let x = 0; x < size; x++) {
       zi = zs[y][x];
-      for (n = 0; n < maxRepeat; n++) {
+      for (let n = 0; n < maxRepeat; n++) {
         if (zi.abs2() > 4.0) {
           output[y][x] = n;
           break;
@@ -50,14 +46,13 @@ function calculation(resolution) {
 }
 
 function setup(size, min, max, centerX, centerY) {
-  var xv = linspace(min + centerX, max + centerX, size);
-  var yv = linspace(min + centerY, max + centerY, size);
-  var x, y;
+  const xv = linspace(min + centerX, max + centerX, size);
+  const yv = linspace(min + centerY, max + centerY, size);
+  const mat2 = [];
 
-  var mat2 = [];
-  for (y = 0; y < size; y++) {
-    var mat = [];
-    for (x = 0; x < size; x++) {
+  for (let y = 0; y < size; y++) {
+    const mat = [];
+    for (let x = 0; x < size; x++) {
       mat.push(new Complex(xv[x], yv[y]))
     }
     mat2.push(mat);
@@ -67,24 +62,23 @@ function setup(size, min, max, centerX, centerY) {
 }
 
 function linspace(min, max, size) {
-  var vec = [];
-  var diff = max - min
-  var delta = diff / size
-  var i;
+  const vec = [];
+  const diff = max - min
+  const delta = diff / size
 
-  for (i = 0; i < size; i++) {
-        vec[i] = min + (i * delta)
+  for (let i = 0; i < size; i++) {
+    vec[i] = min + (i * delta)
   }
 
   return vec;
 }
 
 function initOutput(size, maxRepeat) {
-  var output = [];
-  var x, y;
-  for (y = 0; y < size; y++) {
+  const output = [];
+  
+  for (let y = 0; y < size; y++) {
     output[y] = [];
-    for (x = 0; x < size; x++) {
+    for (let x = 0; x < size; x++) {
       output[y][x] = maxRepeat;
     }
   }

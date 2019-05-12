@@ -1,6 +1,6 @@
 'use strict';
 
-var Complex = function(re, im) {
+const Complex = function(re, im) {
   this.re = re;
   this.im = im;
 };
@@ -11,8 +11,8 @@ Complex.prototype = {
   },
 
   mul: function(c) {
-    var re = this.re * c.re - this.im * c.im;
-    var im = this.re * c.im + this.im * c.re;
+    const re = this.re * c.re - this.im * c.im;
+    const im = this.re * c.im + this.im * c.re;
     return new Complex(re, im);
   },
 
@@ -33,15 +33,15 @@ Complex.prototype = {
   }
 };
 
-var Diagnosis = {
+const Diagnosis = {
   elapsedTime: function(f) {
-    var before = new Date();
+    const before = new Date();
     f();
     return new Date() - before;
   }
 };
 
-var SimpleEventEmitter = function() {
+const SimpleEventEmitter = function() {
   this.handlers = {};
 };
 
@@ -59,12 +59,11 @@ SimpleEventEmitter.prototype = {
   },
 
   emit(name, payload) {
-    var i;
-    for (i = 0; i < this.handlers[name].length; i++) {
+    for (let i = 0; i < this.handlers[name].length; i++) {
       this.handlers[name][i](payload);
     }
   }
 };
 
-var eventer  = new SimpleEventEmitter();
+const eventer  = new SimpleEventEmitter();
 

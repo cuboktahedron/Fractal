@@ -1,6 +1,6 @@
 'use strict';
 
-var colorPalettes = [
+const colorPalettes = [
   {
     name: 'default(16)',
     background: '#000',
