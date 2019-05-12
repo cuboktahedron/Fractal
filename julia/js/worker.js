@@ -1,0 +1,87 @@
+'use strict';
+
+onmessage = function(e) {
+  function absoluteUrl(href, relativePath) {
+    var baseURL = href.replace(/\\/g, '/').replace(/\/[^\/]*$/, '/');
+    return baseURL + relativePath;
+  }
+  
+  const url = absoluteUrl(e.data.href, 'js/utils.js');
+  importScripts(url);
+
+  const output = calculation(e.data);
+  postMessage(output);
+};
+
+function calculation(param) {
+  const cs = param.cs;
+  const centerX = param.center.re;
+  const centerY = param.center.im;
+  const zoom = param.zoom;
+  const size = param.resolution;
+  const maxRepeat = param.maxRepeat;
+  const min = -1.0 * (1.0 / (zoom / 100));
+  const max =  1.0 * (1.0 / (zoom / 100));
+  const zs = setup(size, min, max, centerX, centerY);
+  const output = initOutput(size, maxRepeat);
+
+  for (let y = 0; y < size; y++) {
+    let zi;
+
+    for (let x = 0; x < size; x++) {
+      zi = zs[y][x];
+      for (let n = 0; n < maxRepeat; n++) {
+        if (zi.abs2() > 4.0) {
+          output[y][x] = n;
+          break;
+        }
+
+        zi = zi.mul(zi).add(cs);
+      }
+    }
+  }
+
+  return output;
+}
+
+function setup(size, min, max, centerX, centerY) {
+  const xv = linspace(min + centerX, max + centerX, size);
+  const yv = linspace(min + centerY, max + centerY, size);
+  const mat2 = [];
+
+  for (let y = 0; y < size; y++) {
+    const mat = [];
+    for (let x = 0; x < size; x++) {
+      mat.push(new Complex(xv[x], yv[y]))
+    }
+    mat2.push(mat);
+  }
+
+  return mat2;
+}
+
+function linspace(min, max, size) {
+  const vec = [];
+  const diff = max - min
+  const delta = diff / size
+
+  for (let i = 0; i < size; i++) {
+    vec[i] = min + (i * delta)
+  }
+
+  return vec;
+}
+
+function initOutput(size, maxRepeat) {
+  const output = [];
+  
+  for (let y = 0; y < size; y++) {
+    output[y] = [];
+    for (let x = 0; x < size; x++) {
+      output[y][x] = maxRepeat;
+    }
+  }
+
+  return output;
+}
+

@@ -1,11 +1,21 @@
-'use strict';
+-'use strict';
 
 class CanvasView {
   constructor() {
     const that = this;
     this.$canvas = document.getElementById('canvas');
     this._ctx = this.$canvas.getContext('2d');
+
+    this.$backCanvas = document.createElement('canvas');
+    this.$backCanvas.width = canvas.width;
+    this.$backCanvas.height = canvas.height;
+    this._backCtx = this.$backCanvas.getContext('2d');
+    this._refreshQueue = [];
+
     this._paramView = paramView;
+    setInterval(function() {
+      that._refreshLoop();
+    }, 100);
 
     this._addMouseEvent();
 
@@ -112,20 +122,58 @@ class CanvasView {
     }
   }
 
-  _refresh(rough) {
-    const that = this;
-    const elapsedTime = Diagnosis.elapsedTime(function() {
-      let resolution = that._paramView.resolution();
-      if (rough && resolution > 100) {
-        resolution = 100;
+  async _refresh(rough) {
+    let resolution = paramView.resolution();
+    if (resolution > 100) {
+      resolution = 100;
+    }
+
+    const params = {
+      cs: new Complex(paramView.csre(), paramView.csim()),
+      center: new Complex(paramView.centerX(), paramView.centerY()),
+      zoom: paramView.zoom(),
+      resolution: resolution,
+      maxRepeat: paramView.maxRepeat(),
+      skip: paramView.skip(),
+      colorIndex: this._colorIndex,
+      rough, rough,
+    };
+
+    this._refreshQueue.push(params);
+  }
+
+  _refreshLoop() {
+    if (this._refreshing) {
+      return;
+    }
+
+    if (this._refreshQueue.length > 0) {
+      this._refreshing = true;
+      const refreshParams = this._refreshQueue.shift();
+      if (refreshParams.rough) {
+        this._refreshRoughly(refreshParams);
+      } else {
+        this._refreshNotRoughly(refreshParams);
       }
-  
-      const julia = calculation(resolution);
-      that._clear();
-      that._draw(julia, resolution);
+      this._refreshing = false;
+    }
+  }
+
+  async _refreshNotRoughly(params) {
+    const that = this;
+
+    const elapsedTime = await Diagnosis.elapsedTime(async function() {
+      eventer.emit('changeNotice', 'calculating...');
+      const julia = await calculation(params);
+      await that._draw(julia, params.resolution);
     });
-  
+
     noticeView.time(elapsedTime);
+  }
+
+  async _refreshRoughly(params) {
+    const julia = await calculation(params);
+    await this._draw(julia, params.resolution);
   }
   
   _colorset() {
@@ -133,29 +181,47 @@ class CanvasView {
   }
   
   _clear() {
-    this._ctx.fillStyle = colorPalettes[this._colorIndex].background;
-    this._ctx.fillRect(0, 0, this.$canvas.width, this.$canvas.height);
+    this._backCtx.fillStyle = colorPalettes[this._colorIndex].background;
+    this._backCtx.fillRect(0, 0, this.$backCanvas.width, this.$backCanvas.height);
   }
 
-  _draw(julia, resolution) {
+  async _draw(julia, resolution) {
+    this._clear();
+
+    eventer.emit('changeNotice', 'drawing... 0%');
+
+    let prevProgress = 0;
+    for (let y = 0; y < julia.length; y++) {
+      let progress = Math.floor((y / julia.length) * 100);
+      this._draw2(julia, y, resolution)
+      if (progress - prevProgress >= 5) {
+        eventer.emit('changeNotice', 'drawing... ' + progress + '%');
+        await Process.sleep(0);
+        prevProgress = progress;
+      }
+    }
+
+    eventer.emit('changeNotice', 'drawing... 99%');
+    await Process.sleep(0);
+    this._ctx.drawImage(this.$backCanvas, 0, 0, this.$backCanvas.width, this.$backCanvas.height);
+  }
+
+  _draw2(julia, y, resolution) {
     const maxRepeat = this._paramView.maxRepeat();
     const skip = this._paramView.skip();
     const colors = this._colorset();
-    const len = julia.length;
     const block = this.$canvas.width / resolution;
-  
-    for (let y = 0; y < len; y++) {
-      for (let x = 0; x < len; x++) {
-        let n = julia[y][x];
-        if (n < skip) {
-          continue;
-        } else if (n == maxRepeat) {
-          this._ctx.fillStyle = colorPalettes[this._colorIndex].background2;
-        } else {
-          this._ctx.fillStyle = colors[n % colors.length];
-        }
-        this._ctx.fillRect(x * block, y * block, block, block);
+
+    for (let x = 0; x < julia.length; x++) {
+      let n = julia[y][x];
+      if (n < skip) {
+        continue;
+      } else if (n == maxRepeat) {
+        this._backCtx.fillStyle = colorPalettes[this._colorIndex].background2;
+      } else {
+        this._backCtx.fillStyle = colors[n % colors.length];
       }
+      this._backCtx.fillRect(x * block, y * block, block, block);
     }
   }
 };
@@ -163,6 +229,12 @@ class CanvasView {
 class NoticeView {
   constructor() {
     this.$notice = document.getElementById('notice');
+
+    eventer.on('changeNotice', this.changeNotice, this);
+  }
+
+  changeNotice(notice) {
+    this.$notice.innerText = notice;
   }
 
   time() {

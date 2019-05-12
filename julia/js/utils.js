@@ -34,9 +34,9 @@ class Complex {
 };
 
 const Diagnosis = {
-  elapsedTime: function(f) {
+  elapsedTime: async function(f) {
     const before = new Date();
-    f();
+    await f();
     return new Date() - before;
   }
 };
@@ -62,6 +62,16 @@ class SimpleEventEmitter {
     for (let i = 0; i < this.handlers[name].length; i++) {
       this.handlers[name][i](payload);
     }
+  }
+};
+
+const Process = {
+  sleep: function(ms) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve();
+        }, ms);
+    });
   }
 };
 
