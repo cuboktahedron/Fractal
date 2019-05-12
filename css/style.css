@@ -1,0 +1,103 @@
+@charset "utf-8";
+
+body {
+    background: black;
+    color: white;
+    margin: 0;
+    padding: 4px;
+  }
+  
+  #canvas-parent {
+    border: 8px solid white;
+    float: left;
+    height: 600px;
+  }
+
+  #canvas {
+    height: 600px;
+    width: 600px;
+  }
+
+  #canvas:hover {
+    cursor: crosshair;
+  }
+
+  #side {
+    float: left;
+    min-width: 300px;
+    max-width: 600px;
+    padding: 4px;
+  }
+
+  #side > div {
+    margin-bottom: 16px;
+  }
+
+  .parameters {
+    display: table;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .parameter {
+    display: table-row;
+  }
+
+  .parameter input[type="text"] {
+    margin: 4px 2px;
+    width: 150px;
+  }
+
+  .parameter .lt {
+    display: table-cell;
+    text-align: right;
+  }
+
+  .parameter .rt {
+    display: table-cell;
+    text-align: left;
+  }
+
+  #snapshots-parent {
+    width: 100%;
+  }
+
+  #snapshots {
+    clear: both;
+    padding: 0;
+    margin: 0;
+  }
+
+  #snapshots .snapshot {
+    box-sizing: border-box;
+    display: block;
+    float: left;
+    height: 104px;
+    margin: 2px 4px;
+    position: relative;
+    width: 100px;
+  }
+
+  #snapshots .snapshot:hover {
+    border: dashed 2px white;
+    cursor: pointer;
+  }
+
+  #snapshots .snapshot .del {
+    background: white;
+    border: dashed 1px black;
+    color: black;
+    height: 20px;
+    line-height: 20px;
+    position: absolute;
+    right: 2px;
+    text-align: center;
+    top: 2px;
+    width: 20px;
+  }
+
+  #snapshots .snapshot .del:hover {
+    background: black;
+    color: white;
+    cursor: pointer;
+  }
