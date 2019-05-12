@@ -4,6 +4,7 @@ var colorPalettes = [
   {
     name: 'default(16)',
     background: '#000',
+    background2: '#000',
     colors: [
       "#3f32ae", "#e30ec2", "#baaaff", "#ffffff",
       "#ff949d", "#e80200", "#7a243d", "#000000",
@@ -13,6 +14,7 @@ var colorPalettes = [
   }, {
     name: 'grayscale(16)',
     background: '#000',
+    background2: '#000',
     colors: [
       "#000", "#111", "#222", "#333",
       "#444", "#555", "#666", "#777",
@@ -22,6 +24,7 @@ var colorPalettes = [
   }, {
     name: 'grayscale(256)',
     background: '#000',
+    background2: '#fff',
     colors: [
       "#000000", "#010101", "#020202", "#030303",
       "#040404", "#050505", "#060606", "#070707",

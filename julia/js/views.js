@@ -159,8 +159,10 @@ CanvasView.prototype = {
     for (y = 0; y < len; y++) {
       for (x = 0; x < len; x++) {
         n = julia[y][x];
-        if (n < skip || n == maxRepeat) {
+        if (n < skip) {
           continue;
+        } else if (n == maxRepeat) {
+          this._ctx.fillStyle = colorPalettes[this._colorIndex].background2;
         } else {
           this._ctx.fillStyle = colors[n % colors.length];
         }
