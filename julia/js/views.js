@@ -1,11 +1,17 @@
 'use strict';
 
 var CanvasView = function(paramView) {
+  var that = this;
   this.$canvas = document.getElementById('canvas');
   this._ctx = this.$canvas.getContext('2d');
   this._paramView = paramView;
 
   this._addMouseEvent();
+
+  eventer.on('changeColor', function(colorIndex) {
+    that._colorIndex = colorIndex;
+    eventer.emit('refresh');
+  }, this);
 
   eventer.on('refresh', this._refresh, this);
 };
@@ -132,30 +138,11 @@ CanvasView.prototype = {
   },
   
   _colorset: function() {
-    var palette = [
-    "#3f32ae",
-    "#e30ec2",
-    "#baaaff",
-    "#ffffff",
-    "#ff949d",
-    "#e80200",
-    "#7a243d",
-    "#000000",
-    "#195648",
-    "#6a8927",
-    "#16ed75",
-    "#32c1c3",
-    "#057fc1",
-    "#6e4e23",
-    "#c98f4c",
-    "#efe305",
-    ];
-  
-    return palette;
+    return colorPalettes[this._colorIndex].colors;
   },
   
   _clear: function() {
-    this._ctx.fillStyle = "#000";
+    this._ctx.fillStyle = this._background;
     this._ctx.fillRect(0, 0, this.$canvas.width, this.$canvas.height);
   },
 
@@ -173,9 +160,9 @@ CanvasView.prototype = {
       for (x = 0; x < len; x++) {
         n = julia[y][x];
         if (n < skip || n == maxRepeat) {
-          this._ctx.fillStyle = "rgb(0, 0, 0)";
+          continue;
         } else {
-          this._ctx.fillStyle = colors[n % 16];
+          this._ctx.fillStyle = colors[n % colors.length];
         }
         this._ctx.fillRect(x * block, y * block, block, block);
       }
@@ -387,11 +374,16 @@ ParameterView.prototype = {
 };
 
 var OperationView = function() {
+  var that = this;
+
   this.$fullScreen = document.getElementById('op-fullscreen');
   this.$save = document.getElementById('op-save');
   this.$download = document.getElementById('op-download');
+
   var inputs = document.getElementsByTagName("input");
   var i;
+
+  eventer.on('changeColor', function(colorIndex) { this._colorIndex = colorIndex; }, this);
 
   for (i = 0; i < inputs.length; i++) {
     inputs[i].onchange = function() { eventer.emit('refresh') };
@@ -411,6 +403,7 @@ var OperationView = function() {
       zoom: paramView.zoom(),
       resolution: paramView.resolution(),
       maxRepeat: paramView.maxRepeat(),
+      colorIndex: that._colorIndex,
     };
 
     snapshotsView.add(data);
@@ -438,6 +431,35 @@ var OperationView = function() {
   }
 };
 
+var ColorsetsView = function() {
+  this.$colorsets = document.getElementById('colorsets');
+  this.$colors = document.getElementById('sel-colors');
+};
+
+ColorsetsView.prototype = {
+  init: function() {
+    var that = this;
+    var i;
+    var option;
+    for(i = 0; i < colorPalettes.length; i++) {
+      option = document.createElement('option');
+      option.innerText = colorPalettes[i].name;
+      option.value = i;
+      this.$colors.appendChild(option);
+    }
+
+    this.$colors.onchange = function() {
+      eventer.emit('changeColor', that.$colors.value);
+    };
+
+    eventer.emit('changeColor', 0)
+    eventer.on('selectColor', function(colorIndex) {
+       that.$colors.selectedIndex = colorIndex
+       eventer.emit('changeColor', that.$colors.selectedIndex);
+    }, this);
+  },
+};
+
 var SnapshotsView = function() {
   this.$snapshots = document.getElementById('snapshots');
 };
@@ -449,6 +471,7 @@ SnapshotsView.prototype = {
     // data.imageUrlData: 
     // data.params;
     //
+    var that = this;
     var params = data.params;
 
     var snapshots = this.$snapshots;
@@ -492,6 +515,7 @@ SnapshotsView.prototype = {
         paramView.resolution(params.resolution);
         paramView.maxRepeat(params.maxRepeat);
 
+        eventer.emit('selectColor', params.colorIndex);
         eventer.emit('refresh');
       };
     }

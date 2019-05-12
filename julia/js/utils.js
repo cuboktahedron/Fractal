@@ -47,15 +47,22 @@ var SimpleEventEmitter = function() {
 
 SimpleEventEmitter.prototype = {
   on: function(name, handler, callerObj) {
+    if (this.handlers[name] === undefined) {
+      this.handlers[name] = [];
+    }
+
     if (callerObj == null) {
-      this.handlers[name] = handler;
+      this.handlers[name].push(handler);
     } else {
-      this.handlers[name] = function(palyload) { handler.call(callerObj, palyload) }
+      this.handlers[name].push(function(palyload) { handler.call(callerObj, palyload) });
     }
   },
 
   emit(name, payload) {
-    this.handlers[name](payload);
+    var i;
+    for (i = 0; i < this.handlers[name].length; i++) {
+      this.handlers[name][i](payload);
+    }
   }
 };
 

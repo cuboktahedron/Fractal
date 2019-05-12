@@ -5,9 +5,10 @@ var canvasView = new CanvasView(paramView);
 var operationView = new OperationView();
 var snapshotsView = new SnapshotsView();
 var noticeView = new NoticeView();
+var colorsetsView = new ColorsetsView();
 
 window.onload = function() {
-  eventer.emit('refresh');
+  colorsetsView.init();
 }
 
 function calculation(resolution) {
@@ -70,7 +71,7 @@ function linspace(min, max, size) {
   var diff = max - min
   var delta = diff / size
   var i;
-  
+
   for (i = 0; i < size; i++) {
         vec[i] = min + (i * delta)
   }
