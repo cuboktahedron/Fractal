@@ -1,3 +1,5 @@
+'use strict';
+
 var Complex = function(re, im) {
   this.re = re;
   this.im = im;

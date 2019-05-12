@@ -1,3 +1,5 @@
+'use strict';
+
 var paramView = new ParameterView();
 var canvasView = new CanvasView(paramView);
 var operationView = new OperationView();
@@ -67,7 +69,8 @@ function linspace(min, max, size) {
   var vec = [];
   var diff = max - min
   var delta = diff / size
-
+  var i;
+  
   for (i = 0; i < size; i++) {
         vec[i] = min + (i * delta)
   }

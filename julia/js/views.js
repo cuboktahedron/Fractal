@@ -1,3 +1,5 @@
+'use strict';
+
 var CanvasView = function(paramView) {
   this.$canvas = document.getElementById('canvas');
   this._ctx = this.$canvas.getContext('2d');
@@ -22,7 +24,6 @@ CanvasView.prototype = {
       var centerY = that._paramView.centerY();
   
       downed = ev.button;
-      prevPoint = { x: centerX, y: centerY };
     }
   
     this.$canvas.ondblclick = function(ev) {
@@ -310,6 +311,8 @@ ParameterView.prototype = {
   },
 
   resolution: function() {
+    var value;
+
     if (arguments.length === 0) {
       return +this.$resolution.value;
     } else {
@@ -327,6 +330,8 @@ ParameterView.prototype = {
   },
 
   maxRepeat: function() {
+    var value;
+
     if (arguments.length === 0) {
       return +this.$maxRepeat.value;
     } else {
@@ -344,6 +349,8 @@ ParameterView.prototype = {
   },
 
   skip: function() {
+    var value;
+
     if (arguments.length === 0) {
       return +this.$skip.value;
     } else {
