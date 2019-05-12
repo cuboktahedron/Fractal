@@ -142,7 +142,7 @@ CanvasView.prototype = {
   },
   
   _clear: function() {
-    this._ctx.fillStyle = this._background;
+    this._ctx.fillStyle = colorPalettes[this._colorIndex].background;
     this._ctx.fillRect(0, 0, this.$canvas.width, this.$canvas.height);
   },
 
@@ -410,8 +410,14 @@ var OperationView = function() {
   }
 
   this.$download.onclick = function() {
-    var filename = new Date().getTime();
-    var a = document.createElement('a');
+    var filename = "cs_" + paramView.csre() + '+' + paramView.csim() + 'i '
+      + "ct_" + paramView.centerX() + '+' + paramView.centerY() + 'i '
+      + "zm_" + paramView.zoom() + ' '
+      + "rs_" + paramView.resolution() + ' '
+      + "rp_" + paramView.maxRepeat() + ' '
+      + "sp_" + paramView.skip() + ' ';
+
+      var a = document.createElement('a');
 
     if (canvas.toBlob) {
       canvas.toBlob(function (blob) {
