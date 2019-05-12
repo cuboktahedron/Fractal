@@ -403,6 +403,7 @@ var OperationView = function() {
       zoom: paramView.zoom(),
       resolution: paramView.resolution(),
       maxRepeat: paramView.maxRepeat(),
+      skip: paramView.skip(),
       colorIndex: that._colorIndex,
     };
 
@@ -496,7 +497,8 @@ SnapshotsView.prototype = {
       + "center: " + params.center + "\n"
       + "zoom: " + params.zoom + "\n"
       + "resolution: " + params.resolution + "\n"
-      + "maxRepeat: " + params.maxRepeat;
+      + "maxRepeat: " + params.maxRepeat + "\n"
+      + "skip: " + params.skip;
 
     snapshot.className = "snapshot";
     snapshot.appendChild(image);
@@ -520,6 +522,7 @@ SnapshotsView.prototype = {
         paramView.zoom(params.zoom);
         paramView.resolution(params.resolution);
         paramView.maxRepeat(params.maxRepeat);
+        paramView.skip(params.skip);
 
         eventer.emit('selectColor', params.colorIndex);
         eventer.emit('refresh');
