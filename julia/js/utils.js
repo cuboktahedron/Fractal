@@ -1,30 +1,30 @@
 'use strict';
 
-const Complex = function(re, im) {
-  this.re = re;
-  this.im = im;
-};
-
-Complex.prototype = {
-  add: function(c) {
+class Complex {
+  constructor(re, im) {
+    this.re = re;
+    this.im = im;
+  }
+  
+  add(c) {
     return new Complex(this.re + c.re, this.im + c.im);
-  },
+  }
 
-  mul: function(c) {
+  mul(c) {
     const re = this.re * c.re - this.im * c.im;
     const im = this.re * c.im + this.im * c.re;
     return new Complex(re, im);
-  },
+  }
 
-  abs: function() {
+  abs() {
     return Math.sqrt(this.re * this.re + this.im * this.im);
-  },
+  }
 
-  abs2: function() {
+  abs2() {
     return this.re * this.re + this.im * this.im;
-  },
+  }
 
-  toString: function() {
+  toString() {
     if (this.im >= 0) {
       return this.re + " + " + this.im + "i";
     } else {
@@ -41,12 +41,12 @@ const Diagnosis = {
   }
 };
 
-const SimpleEventEmitter = function() {
-  this.handlers = {};
-};
+class SimpleEventEmitter {
+  constructor() {
+    this.handlers = {};
+  }
 
-SimpleEventEmitter.prototype = {
-  on: function(name, handler, callerObj) {
+  on(name, handler, callerObj) {
     if (this.handlers[name] === undefined) {
       this.handlers[name] = [];
     }
@@ -56,7 +56,7 @@ SimpleEventEmitter.prototype = {
     } else {
       this.handlers[name].push(function(palyload) { handler.call(callerObj, palyload) });
     }
-  },
+  }
 
   emit(name, payload) {
     for (let i = 0; i < this.handlers[name].length; i++) {

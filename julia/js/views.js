@@ -1,23 +1,23 @@
 'use strict';
 
-const CanvasView = function(paramView) {
-  const that = this;
-  this.$canvas = document.getElementById('canvas');
-  this._ctx = this.$canvas.getContext('2d');
-  this._paramView = paramView;
+class CanvasView {
+  constructor() {
+    const that = this;
+    this.$canvas = document.getElementById('canvas');
+    this._ctx = this.$canvas.getContext('2d');
+    this._paramView = paramView;
 
-  this._addMouseEvent();
+    this._addMouseEvent();
 
-  eventer.on('changeColor', function(colorIndex) {
-    that._colorIndex = colorIndex;
-    eventer.emit('refresh');
-  }, this);
+    eventer.on('changeColor', function(colorIndex) {
+      that._colorIndex = colorIndex;
+      eventer.emit('refresh');
+    }, this);
 
-  eventer.on('refresh', this._refresh, this);
-};
+    eventer.on('refresh', this._refresh, this);
+  }
 
-CanvasView.prototype = {
-  _addMouseEvent: function() {
+  _addMouseEvent() {
     const that = this;
     let downed = -1;
   
@@ -110,9 +110,9 @@ CanvasView.prototype = {
   
       ev.preventDefault();
     }
-  },
+  }
 
-  _refresh: function(rough) {
+  _refresh(rough) {
     const that = this;
     const elapsedTime = Diagnosis.elapsedTime(function() {
       let resolution = that._paramView.resolution();
@@ -126,18 +126,18 @@ CanvasView.prototype = {
     });
   
     noticeView.time(elapsedTime);
-  },
+  }
   
-  _colorset: function() {
+  _colorset() {
     return colorPalettes[this._colorIndex].colors;
-  },
+  }
   
-  _clear: function() {
+  _clear() {
     this._ctx.fillStyle = colorPalettes[this._colorIndex].background;
     this._ctx.fillRect(0, 0, this.$canvas.width, this.$canvas.height);
-  },
+  }
 
-  _draw: function(julia, resolution) {
+  _draw(julia, resolution) {
     const maxRepeat = this._paramView.maxRepeat();
     const skip = this._paramView.skip();
     const colors = this._colorset();
@@ -160,12 +160,12 @@ CanvasView.prototype = {
   }
 };
 
-const NoticeView = function() {
-  this.$notice = document.getElementById('notice');
-};
+class NoticeView {
+  constructor() {
+    this.$notice = document.getElementById('notice');
+  }
 
-NoticeView.prototype = {
-  time: function() {
+  time() {
     if (arguments.length === 0) {
       return 
     } else {
@@ -180,19 +180,19 @@ NoticeView.prototype = {
   }
 };
 
-const ParameterView = function() {
-  this.$centerX = document.getElementById('center-x');
-  this.$centerY = document.getElementById('center-y');
-  this.$csre = document.getElementById('cs-re');
-  this.$csim = document.getElementById('cs-im');
-  this.$zoom = document.getElementById('zoom');
-  this.$resolution = document.getElementById('resolution');
-  this.$maxRepeat = document.getElementById('max-Repeat');
-  this.$skip = document.getElementById('skip');
-};
+class ParameterView {
+  constructor() {
+    this.$centerX = document.getElementById('center-x');
+    this.$centerY = document.getElementById('center-y');
+    this.$csre = document.getElementById('cs-re');
+    this.$csim = document.getElementById('cs-im');
+    this.$zoom = document.getElementById('zoom');
+    this.$resolution = document.getElementById('resolution');
+    this.$maxRepeat = document.getElementById('max-Repeat');
+    this.$skip = document.getElementById('skip');
+  }
 
-ParameterView.prototype = {
-  centerX: function() {
+  centerX() {
     if (arguments.length === 0) {
       return +this.$centerX.value;
     } else {
@@ -203,9 +203,9 @@ ParameterView.prototype = {
 
       this.$centerX.value = value;
     }
-  },
+  }
 
-  centerY: function() {
+  centerY() {
     if (arguments.length === 0) {
       return +this.$centerY.value;
     } else {
@@ -216,9 +216,9 @@ ParameterView.prototype = {
 
       this.$centerY.value = value;
     }
-  },
+  }
 
-  csre: function() {
+  csre() {
     if (arguments.length === 0) {
       return +this.$csre.value;
     } else {
@@ -229,9 +229,9 @@ ParameterView.prototype = {
 
       this.$csre.value = value;
     }
-  },
+  }
 
-  csim: function() {
+  csim() {
     if (arguments.length === 0) {
       return +this.$csim.value;
     } else {
@@ -242,9 +242,9 @@ ParameterView.prototype = {
 
       this.$csim.value = value;
     }
-  },
+  }
 
-  centerY: function() {
+  centerY() {
     if (arguments.length === 0) {
       return +this.$centerY.value;
     } else {
@@ -255,9 +255,9 @@ ParameterView.prototype = {
 
       this.$centerY.value = value;
     }
-  },
+  }
 
-  zoom: function() {
+  zoom() {
     if (arguments.length === 0) {
       return +this.$zoom.value;
     } else {
@@ -270,9 +270,9 @@ ParameterView.prototype = {
 
       this.$zoom.value = value;
     }
-  },
+  }
 
-  resolution: function() {
+  resolution() {
     if (arguments.length === 0) {
       return +this.$resolution.value;
     } else {
@@ -287,9 +287,9 @@ ParameterView.prototype = {
 
       this.$resolution.value = value;
     }
-  },
+  }
 
-  maxRepeat: function() {
+  maxRepeat() {
     if (arguments.length === 0) {
       return +this.$maxRepeat.value;
     } else {
@@ -304,9 +304,9 @@ ParameterView.prototype = {
 
       this.$maxRepeat.value = value;
     }
-  },
+  }
 
-  skip: function() {
+  skip() {
     if (arguments.length === 0) {
       return +this.$skip.value;
     } else {
@@ -319,9 +319,9 @@ ParameterView.prototype = {
 
       this.$skip.value = value;
     }
-  },
+  }
 
-  zoomIn: function() {
+  zoomIn() {
     const zoom = this.zoom();
     let value = Math.floor(zoom * Math.sqrt(2))
     if (value === zoom) {
@@ -329,9 +329,9 @@ ParameterView.prototype = {
     }
 
     this.zoom(value);
-  }, 
+  }
 
-  zoomOut: function() {
+  zoomOut() {
     const zoom = this.zoom();
     let value = Math.floor(zoom / Math.sqrt(2))
     if (value === zoom) {
@@ -342,76 +342,78 @@ ParameterView.prototype = {
   }
 };
 
-const OperationView = function() {
-  const that = this;
+class OperationView {
+  constructor() {
+    const that = this;
 
-  this.$fullScreen = document.getElementById('op-fullscreen');
-  this.$save = document.getElementById('op-save');
-  this.$download = document.getElementById('op-download');
+    this.$fullScreen = document.getElementById('op-fullscreen');
+    this.$save = document.getElementById('op-save');
+    this.$download = document.getElementById('op-download');
 
-  eventer.on('changeColor', function(colorIndex) { this._colorIndex = colorIndex; }, this);
+    eventer.on('changeColor', function(colorIndex) { this._colorIndex = colorIndex; }, this);
 
-  const inputs = document.getElementsByTagName("input");
-  for (let i = 0; i < inputs.length; i++) {
-    inputs[i].onchange = function() { eventer.emit('refresh') };
-  }
+    const inputs = document.getElementsByTagName("input");
+    for (let i = 0; i < inputs.length; i++) {
+      inputs[i].onchange = function() { eventer.emit('refresh') };
+    }
 
-  this.$fullScreen.onclick = function() {
-    canvas.requestFullscreen();
-  }
+    this.$fullScreen.onclick = function() {
+      canvas.requestFullscreen();
+    }
 
-  this.$save.onclick = function() {
-    const data = {};
+    this.$save.onclick = function() {
+      const data = {};
 
-    data.imageUrlData = canvas.toDataURL();
-    data.params = {
-      cs: new Complex(paramView.csre(), paramView.csim()),
-      center: new Complex(paramView.centerX(), paramView.centerY()),
-      zoom: paramView.zoom(),
-      resolution: paramView.resolution(),
-      maxRepeat: paramView.maxRepeat(),
-      skip: paramView.skip(),
-      colorIndex: that._colorIndex,
-    };
+      data.imageUrlData = canvas.toDataURL();
+      data.params = {
+        cs: new Complex(paramView.csre(), paramView.csim()),
+        center: new Complex(paramView.centerX(), paramView.centerY()),
+        zoom: paramView.zoom(),
+        resolution: paramView.resolution(),
+        maxRepeat: paramView.maxRepeat(),
+        skip: paramView.skip(),
+        colorIndex: that._colorIndex,
+      };
 
-    snapshotsView.add(data);
-  }
+      snapshotsView.add(data);
+    }
 
-  this.$download.onclick = function() {
-    const filename = "cs_" + paramView.csre() + '+' + paramView.csim() + 'i '
-      + "ct_" + paramView.centerX() + '+' + paramView.centerY() + 'i '
-      + "zm_" + paramView.zoom() + ' '
-      + "rs_" + paramView.resolution() + ' '
-      + "rp_" + paramView.maxRepeat() + ' '
-      + "sp_" + paramView.skip() + ' ';
+    this.$download.onclick = function() {
+      const filename = "cs_" + paramView.csre() + '+' + paramView.csim() + 'i '
+        + "ct_" + paramView.centerX() + '+' + paramView.centerY() + 'i '
+        + "zm_" + paramView.zoom() + ' '
+        + "rs_" + paramView.resolution() + ' '
+        + "rp_" + paramView.maxRepeat() + ' '
+        + "sp_" + paramView.skip() + ' ';
 
-    const a = document.createElement('a');
+      const a = document.createElement('a');
 
-    if (canvas.toBlob) {
-      canvas.toBlob(function (blob) {
-        a.href = URL.createObjectURL(blob);
-        a.download = filename + '.png';
+      if (canvas.toBlob) {
+        canvas.toBlob(function (blob) {
+          a.href = URL.createObjectURL(blob);
+          a.download = filename + '.png';
+          a.click();
+        });
+      } else if (canvas.msToBlob) {
+        a.href = URL.createObjectURL(canvas.msToBlob());
+        a.download = filename + '.png';;
         a.click();
-      });
-    } else if (canvas.msToBlob) {
-      a.href = URL.createObjectURL(canvas.msToBlob());
-      a.download = filename + '.png';;
-      a.click();
-    } else {
-      a.href = canvas.toDataURL('image/png');
-      a.download = filename;
-      a.click();
+      } else {
+        a.href = canvas.toDataURL('image/png');
+        a.download = filename;
+        a.click();
+      }
     }
   }
 };
 
-const ColorsetsView = function() {
-  this.$colorsets = document.getElementById('colorsets');
-  this.$colors = document.getElementById('sel-colors');
-};
+class ColorsetsView {
+  constructor() {
+    this.$colorsets = document.getElementById('colorsets');
+    this.$colors = document.getElementById('sel-colors');
+  }
 
-ColorsetsView.prototype = {
-  init: function() {
+  init() {
     const that = this;
     for(let i = 0; i < colorPalettes.length; i++) {
       const option = document.createElement('option');
@@ -429,16 +431,15 @@ ColorsetsView.prototype = {
       that.$colors.selectedIndex = colorIndex
       eventer.emit('changeColor', that.$colors.selectedIndex);
     }, this);
-  },
+  }
 };
 
-const SnapshotsView = function() {
-  this.$snapshots = document.getElementById('snapshots');
-};
+class SnapshotsView {
+  constructor() {
+    this.$snapshots = document.getElementById('snapshots');
+  }
 
-SnapshotsView.prototype = {
-
-  add: function(data) {
+  add(data) {
     //
     // data.imageUrlData: 
     // data.params;
@@ -493,4 +494,4 @@ SnapshotsView.prototype = {
       };
     }
   }
-}
+};
