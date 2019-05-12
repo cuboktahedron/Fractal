@@ -304,6 +304,7 @@ const colorPalettes = [
   }, {
     name: 'binary',
     background: '#000',
+    background2: '#fff',
     colors: [
       "#000",
       "#fff",
