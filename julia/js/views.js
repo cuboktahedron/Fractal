@@ -10,7 +10,7 @@ class CanvasView {
     this.$backCanvas.width = canvas.width;
     this.$backCanvas.height = canvas.height;
     this._backCtx = this.$backCanvas.getContext('2d');
-    this._refreshQueue = [];
+    this._refreshCanceling = false;
 
     this._paramView = paramView;
     setInterval(function() {
@@ -124,7 +124,7 @@ class CanvasView {
 
   async _refresh(rough) {
     let resolution = paramView.resolution();
-    if (resolution > 100) {
+    if (rough && resolution > 100) {
       resolution = 100;
     }
 
@@ -136,26 +136,32 @@ class CanvasView {
       maxRepeat: paramView.maxRepeat(),
       skip: paramView.skip(),
       colorIndex: this._colorIndex,
-      rough, rough,
+      rough: !!rough,
     };
 
-    this._refreshQueue.push(params);
+    if (this._refreshing) {
+      this._refreshCanceling = true;
+    }
+    this._nextRefreshParam = params;
   }
 
-  _refreshLoop() {
+  async _refreshLoop() {
     if (this._refreshing) {
       return;
     }
 
-    if (this._refreshQueue.length > 0) {
+    if (this._nextRefreshParam) {
       this._refreshing = true;
-      const refreshParams = this._refreshQueue.shift();
+      const refreshParams = this._nextRefreshParam;
+      this._nextRefreshParam = null;
+
       if (refreshParams.rough) {
-        this._refreshRoughly(refreshParams);
+        await this._refreshRoughly(refreshParams);
       } else {
-        this._refreshNotRoughly(refreshParams);
+        await this._refreshNotRoughly(refreshParams);
       }
       this._refreshing = false;
+      this._refreshCanceling = false;
     }
   }
 
@@ -165,15 +171,23 @@ class CanvasView {
     const elapsedTime = await Diagnosis.elapsedTime(async function() {
       eventer.emit('changeNotice', 'calculating...');
       const julia = await calculation(params);
+      if (that._refreshCanceling) {
+        return;
+      }
       await that._draw(julia, params.resolution);
     });
+
+    if (that._refreshCanceling) {
+      return;      
+    }
 
     noticeView.time(elapsedTime);
   }
 
   async _refreshRoughly(params) {
+    eventer.emit('changeNotice', 'drawing roughly...');
     const julia = await calculation(params);
-    await this._draw(julia, params.resolution);
+    await this._drawRoughly(julia, params.resolution);
   }
   
   _colorset() {
@@ -192,6 +206,10 @@ class CanvasView {
 
     let prevProgress = 0;
     for (let y = 0; y < julia.length; y++) {
+      if (this._refreshCanceling) {
+        return;
+      }
+
       let progress = Math.floor((y / julia.length) * 100);
       this._draw2(julia, y, resolution)
       if (progress - prevProgress >= 5) {
@@ -201,8 +219,22 @@ class CanvasView {
       }
     }
 
+    if (this._refreshCanceling) {
+      return;
+    }
+
     eventer.emit('changeNotice', 'drawing... 99%');
     await Process.sleep(0);
+    this._ctx.drawImage(this.$backCanvas, 0, 0, this.$backCanvas.width, this.$backCanvas.height);
+  }
+
+  async _drawRoughly(julia, resolution) {
+    this._clear();
+
+    for (let y = 0; y < julia.length; y++) {
+      this._draw2(julia, y, resolution)
+    }
+
     this._ctx.drawImage(this.$backCanvas, 0, 0, this.$backCanvas.width, this.$backCanvas.height);
   }
 
