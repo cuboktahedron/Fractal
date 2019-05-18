@@ -75,5 +75,23 @@ const Process = {
   }
 };
 
+const WorkerUtils = {
+  createWorker: function(relativePath) {
+    try {
+      return this._createViaBlob(relativePath);
+    } catch (e) {
+      return new Worker(relativePath);
+    }
+  },
+
+  _createViaBlob: function(relativePath) {
+    var baseURL = window.location.href.replace(/\\/g, '/').replace(/\/[^\/]*$/, '/');
+    var array = ['importScripts("' + baseURL + relativePath + '");'];
+    var blob = new Blob(array, {type: 'text/javascript'});
+    var url = window.URL.createObjectURL(blob);
+    return new Worker(url);
+  }
+}
+
 const eventer  = new SimpleEventEmitter();
 

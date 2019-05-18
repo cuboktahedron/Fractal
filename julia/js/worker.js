@@ -10,10 +10,12 @@ onmessage = function(e) {
   importScripts(url);
 
   const output = calculation(e.data);
-  postMessage(output);
+  postMessage({ end: true, output: output });
 };
 
 function calculation(param) {
+  postMessage({ end: false, progress: 'ready for calculating...' });
+
   const cs = param.cs;
   const centerX = param.center.re;
   const centerY = param.center.im;
@@ -24,10 +26,16 @@ function calculation(param) {
   const max =  1.0 * (1.0 / (zoom / 100));
   const zs = setup(size, min, max, centerX, centerY);
   const output = initOutput(size, maxRepeat);
+  let prevProgress = 0;
 
   for (let y = 0; y < size; y++) {
     let zi;
-
+    let progress = Math.floor((y / size) * 100);
+    if (progress - prevProgress >= 5) {
+      postMessage({ end: false, progress: 'calculating... ' + progress + '%' });
+      prevProgress = progress;
+    }
+  
     for (let x = 0; x < size; x++) {
       zi = zs[y][x];
       for (let n = 0; n < maxRepeat; n++) {

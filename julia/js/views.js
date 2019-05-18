@@ -169,8 +169,7 @@ class CanvasView {
     const that = this;
 
     const elapsedTime = await Diagnosis.elapsedTime(async function() {
-      eventer.emit('changeNotice', 'calculating...');
-      const julia = await calculation(params);
+      const julia = await that._calculation(params);
       if (that._refreshCanceling) {
         return;
       }
@@ -186,10 +185,34 @@ class CanvasView {
 
   async _refreshRoughly(params) {
     eventer.emit('changeNotice', 'drawing roughly...');
-    const julia = await calculation(params);
+    const julia = await this._calculation(params);
     await this._drawRoughly(julia, params.resolution);
   }
   
+  async _calculation(param) {
+    const worker = WorkerUtils.createWorker('js/worker.js');
+    const workerParam = Object.assign({}, param);
+    workerParam.href = window.location.href;
+
+    let julia = null;
+    worker.postMessage(workerParam);
+    worker.onmessage = function(e) {
+      if (e.data.end) {
+        julia = e.data.output;
+      } else if (!param.rough) {
+        eventer.emit('changeNotice', e.data.progress);
+      }
+    };
+
+    while (true) {
+      await Process.sleep(10);
+      if (julia || (!param.rough && this._refreshCanceling)) {
+        worker.terminate();
+        return julia;
+      }
+    }
+  }
+
   _colorset() {
     return colorPalettes[this._colorIndex].colors;
   }
