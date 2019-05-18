@@ -322,6 +322,17 @@ class ParameterView {
     this.$skip = document.getElementById('skip');
   }
 
+  init(params) {
+    this.csre(params.csre);
+    this.csim(params.csim);
+    this.centerX(params.ctre);
+    this.centerY(params.ctim);
+    this.zoom(params.zm);
+    this.resolution(params.rs);
+    this.maxRepeat(params.rp);
+    this.skip(params.sp);
+  }
+
   centerX() {
     if (arguments.length === 0) {
       return +this.$centerX.value;
@@ -479,6 +490,8 @@ class OperationView {
     this.$fullScreen = document.getElementById('op-fullscreen');
     this.$save = document.getElementById('op-save');
     this.$download = document.getElementById('op-download');
+    this.$url = document.getElementById('op-url');
+    this.$txUrl = document.getElementById('tx-url');
 
     eventer.on('changeColor', function(colorIndex) { this._colorIndex = colorIndex; }, this);
 
@@ -534,6 +547,24 @@ class OperationView {
         a.click();
       }
     }
+
+    this.$url.onclick = function() {
+      const params = [];
+      params.push('csre=' + paramView.csre());
+      params.push('csim=' + paramView.csim());
+      params.push('ctre=' + paramView.centerX());
+      params.push('ctim=' + paramView.centerY());
+      params.push('zm=' + paramView.zoom());
+      params.push('rs=' + paramView.resolution());
+      params.push('rp=' + paramView.maxRepeat());
+      params.push('sp=' + paramView.skip());
+      params.push('ci=' + that._colorIndex);
+
+      const url = location.href.replace(/\?.*/, '') + '?' + params.join('&');
+      that.$txUrl.value = url;
+      that.$txUrl.select();
+      document.execCommand('copy')
+    }
   }
 };
 
@@ -543,7 +574,7 @@ class ColorsetsView {
     this.$colors = document.getElementById('sel-colors');
   }
 
-  init() {
+  init(params) {
     const that = this;
     for(let i = 0; i < colorPalettes.length; i++) {
       const option = document.createElement('option');
@@ -556,11 +587,15 @@ class ColorsetsView {
       eventer.emit('changeColor', that.$colors.value);
     };
 
-    eventer.emit('changeColor', 0)
     eventer.on('selectColor', function(colorIndex) {
       that.$colors.selectedIndex = colorIndex
+      if (that.$colors.selectedIndex < 0) {
+        that.$colors.selectedIndex = 0;
+      }
       eventer.emit('changeColor', that.$colors.selectedIndex);
     }, this);
+
+    eventer.emit('selectColor', params.ci);
   }
 };
 
