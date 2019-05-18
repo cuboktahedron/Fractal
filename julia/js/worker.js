@@ -1,6 +1,6 @@
 'use strict';
 
-onmessage = function(e) {
+onmessage = (e) => {
   function absoluteUrl(href, relativePath) {
     var baseURL = href.replace(/\\/g, '/').replace(/\/[^\/]*$/, '/');
     return baseURL + relativePath;
@@ -13,7 +13,7 @@ onmessage = function(e) {
   postMessage({ end: true, output: output });
 };
 
-function calculation(param) {
+const calculation = (param) => {
   postMessage({ end: false, progress: 'ready for calculating...' });
 
   const cs = param.cs;
@@ -52,7 +52,7 @@ function calculation(param) {
   return output;
 }
 
-function setup(size, min, max, centerX, centerY) {
+const setup = (size, min, max, centerX, centerY) => {
   const xv = linspace(min + centerX, max + centerX, size);
   const yv = linspace(min + centerY, max + centerY, size);
   const mat2 = [];
@@ -68,7 +68,7 @@ function setup(size, min, max, centerX, centerY) {
   return mat2;
 }
 
-function linspace(min, max, size) {
+const linspace = (min, max, size) => {
   const vec = [];
   const diff = max - min
   const delta = diff / size
@@ -80,7 +80,7 @@ function linspace(min, max, size) {
   return vec;
 }
 
-function initOutput(size, maxRepeat) {
+const initOutput = (size, maxRepeat) => {
   const output = [];
   
   for (let y = 0; y < size; y++) {

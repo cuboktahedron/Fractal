@@ -34,82 +34,80 @@ class CanvasView {
     this.$backCanvas.height = canvas.height;
     this._backCtx = this.$backCanvas.getContext('2d');
     this._refreshCanceling = false;
+    this._refreshing = false;
   }
 
   init() {
-    const that = this;
-
-    setInterval(function() {
-      that._refreshLoop();
+    setInterval(() => {
+      this._refreshLoop();
     }, 100);
 
     this._addMouseEvent();
 
-    eventer.on('changeColor', function(colorIndex) {
-      that._colorIndex = colorIndex;
+    eventer.on('changeColor', (colorIndex) => {
+      this._colorIndex = colorIndex;
       eventer.emit('refresh');
-    }, this);
+    });
 
-    eventer.on('refresh', this._refresh, this);
+    eventer.on('refresh', (rough) => this._refresh(rough));
   }
 
   _addMouseEvent() {
-    const that = this;
     let downed = -1;
   
-    this.$canvas.oncontextmenu = function() {
+    this.$canvas.oncontextmenu = () => {
       return false;
     }
   
-    this.$canvas.onmousedown = function(ev) {
+    this.$canvas.onmousedown = (ev) => {
       downed = ev.button;
     }
   
-    this.$canvas.ondblclick = function(ev) {
-      const centerX = that._paramView.centerX();
-      const centerY = that._paramView.centerY();
-      const zoom = that._paramView.zoom();
-      const diffX = ev.layerX - (that.$canvas.clientWidth / 2);
-      const diffY = ev.layerY - (that.$canvas.clientHeight / 2);
-      const newCenterX = centerX + ((diffX / (that.$canvas.clientWidth / 2)) * (100 / zoom));
-      const newCenterY = centerY + ((diffY / (that.$canvas.clientHeight / 2)) * (100 / zoom));
+    this.$canvas.ondblclick = (ev) => {
+      const centerX = this._paramView.centerX();
+      const centerY = this._paramView.centerY();
+      const zoom = this._paramView.zoom();
+      const diffX = ev.layerX - (this.$canvas.clientWidth / 2);
+      const diffY = ev.layerY - (this.$canvas.clientHeight / 2);
+      const newCenterX = centerX + ((diffX / (this.$canvas.clientWidth / 2)) * (100 / zoom));
+      const newCenterY = centerY + ((diffY / (this.$canvas.clientHeight / 2)) * (100 / zoom));
   
-      that._paramView.centerX(newCenterX);
-      that._paramView.centerY(newCenterY);
+      this._paramView.centerX(newCenterX);
+      this._paramView.centerY(newCenterY);
   
       eventer.emit('refresh');
     }
   
-    this.$canvas.onmousemove = function(ev) {
+    this.$canvas.onmousemove = (ev) => {
       if (downed !== 0 && downed !== 2) {
         return;
       }
 
-      if (downed === 0 && (ev.shiftKey || that._operationView.shifted())) {
+      if (downed === 0 && (ev.shiftKey || this._operationView.shifted())) {
         downed = 2;
       }
 
-      const zoom = that._paramView.zoom();
+      const zoom = this._paramView.zoom();
 
       if (downed === 0) { // left button
-        const centerX = that._paramView.centerX();
-        const centerY = that._paramView.centerY();
-        const newCenterX = centerX - ((ev.movementX / (that.$canvas.clientWidth / 2)) * (100 / zoom)); 
-        const newCenterY = centerY - ((ev.movementY / (that.$canvas.clientHeight / 2)) * (100 / zoom));
-        that._paramView.centerX(newCenterX);
-        that._paramView.centerY(newCenterY);
+        const centerX = this._paramView.centerX();
+        const centerY = this._paramView.centerY();
+        const newCenterX = centerX - ((ev.movementX / (this.$canvas.clientWidth / 2)) * (100 / zoom)); 
+        const newCenterY = centerY - ((ev.movementY / (this.$canvas.clientHeight / 2)) * (100 / zoom));
+        this._paramView.centerX(newCenterX);
+        this._paramView.centerY(newCenterY);
   
         eventer.emit('refresh', true);
         return;
       }
   
       if (downed === 2) { // right button
-        const csre = that._paramView.csre();
-        const csim = that._paramView.csim();
+        const csre = this._paramView.csre();
+        const csim = this._paramView.csim();
         const newCsre = csre + (ev.movementX / (zoom * 10));
         const newCsim = csim + (ev.movementY / (zoom * 10));
-        that._paramView.csre(newCsre);
-        that._paramView.csim(newCsim);
+        this._paramView.csre(newCsre);
+        this._paramView.csim(newCsim);
   
         eventer.emit('refresh', true);
   
@@ -117,7 +115,7 @@ class CanvasView {
       }
     }
   
-    this.$canvas.onmouseup = function(ev) {
+    this.$canvas.onmouseup = (ev) => {
       if (downed === -1) {
         return;
       }
@@ -126,27 +124,27 @@ class CanvasView {
       eventer.emit('refresh');
     }
   
-    this.$canvas.onmousewheel = function(ev) {
-      const centerX = that._paramView.centerX();
-      const centerY = that._paramView.centerY();
-      const diffX = ev.layerX - (that.$canvas.clientWidth / 2);
-      const diffY = ev.layerY - (that.$canvas.clientHeight / 2);
-      const px = centerX + ((diffX / (that.$canvas.clientWidth / 2)) * (100 /  that._paramView.zoom())); 
-      const py = centerY + ((diffY / (that.$canvas.clientHeight / 2)) * (100 /  that._paramView.zoom()));
+    this.$canvas.onmousewheel = (ev) => {
+      const centerX = this._paramView.centerX();
+      const centerY = this._paramView.centerY();
+      const diffX = ev.layerX - (this.$canvas.clientWidth / 2);
+      const diffY = ev.layerY - (this.$canvas.clientHeight / 2);
+      const px = centerX + ((diffX / (this.$canvas.clientWidth / 2)) * (100 /  this._paramView.zoom())); 
+      const py = centerY + ((diffY / (this.$canvas.clientHeight / 2)) * (100 /  this._paramView.zoom()));
   
       if (ev.wheelDelta > 0) {
-        that._paramView.zoomIn();
+        this._paramView.zoomIn();
       } else {
-        that._paramView.zoomOut();
+        this._paramView.zoomOut();
       }
   
-      const newCenterX = px - ((diffX / (that.$canvas.clientWidth / 2)) * (100 / that._paramView.zoom())); 
-      const newCenterY = py - ((diffY / (that.$canvas.clientHeight / 2)) * (100 / that._paramView.zoom()));
-      that._paramView.centerX(newCenterX);
-      that._paramView.centerY(newCenterY);
+      const newCenterX = px - ((diffX / (this.$canvas.clientWidth / 2)) * (100 / this._paramView.zoom())); 
+      const newCenterY = py - ((diffY / (this.$canvas.clientHeight / 2)) * (100 / this._paramView.zoom()));
+      this._paramView.centerX(newCenterX);
+      this._paramView.centerY(newCenterY);
   
       eventer.emit('refresh', true);
-      setTimeout(function() {
+      setTimeout(() => {
         eventer.emit('refresh');
       }, 200);
 
@@ -198,17 +196,15 @@ class CanvasView {
   }
 
   async _refreshNotRoughly(params) {
-    const that = this;
-
-    const elapsedTime = await Diagnosis.elapsedTime(async function() {
-      const julia = await that._calculation(params);
-      if (that._refreshCanceling) {
+    const elapsedTime = await Diagnosis.elapsedTime(async () => {
+      const julia = await this._calculation(params);
+      if (this._refreshCanceling) {
         return;
       }
-      await that._draw(julia, params.resolution);
+      await this._draw(julia, params.resolution);
     });
 
-    if (that._refreshCanceling) {
+    if (this._refreshCanceling) {
       return;      
     }
 
@@ -229,7 +225,7 @@ class CanvasView {
 
     let julia = null;
     worker.postMessage(workerParam);
-    worker.onmessage = function(e) {
+    worker.onmessage = (e) => {
       if (e.data.end) {
         julia = e.data.output;
       } else if (!param.rough) {
@@ -320,7 +316,7 @@ class NoticeView {
   }
 
   init() {
-    eventer.on('changeNotice', this.changeNotice, this);
+    eventer.on('changeNotice', (notice) => this.changeNotice(notice));
   }
 
   changeNotice(notice) {
@@ -364,14 +360,14 @@ class ParameterView {
     this.maxRepeat(params.rp);
     this.skip(params.sp);
 
-    this.$csre.onchange = function() { eventer.emit('refresh') };
-    this.$csim.onchange = function() { eventer.emit('refresh') };
-    this.$centerX.onchange = function() { eventer.emit('refresh') };
-    this.$centerY.onchange = function() { eventer.emit('refresh') };
-    this.$zoom.onchange = function() { eventer.emit('refresh') };
-    this.$resolution.onchange = function() { eventer.emit('refresh') };
-    this.$maxRepeat.onchange = function() { eventer.emit('refresh') };
-    this.$skip.onchange = function() { eventer.emit('refresh') };
+    this.$csre.onchange = () => { eventer.emit('refresh') };
+    this.$csim.onchange = () => { eventer.emit('refresh') };
+    this.$centerX.onchange = () => { eventer.emit('refresh') };
+    this.$centerY.onchange = () => { eventer.emit('refresh') };
+    this.$zoom.onchange = () => { eventer.emit('refresh') };
+    this.$resolution.onchange = () => { eventer.emit('refresh') };
+    this.$maxRepeat.onchange = () => { eventer.emit('refresh') };
+    this.$skip.onchange = () => { eventer.emit('refresh') };
   }
 
   centerX() {
@@ -537,43 +533,41 @@ class OperationView {
   }
 
   init() {
-    const that = this;
+    eventer.on('changeColor', (colorIndex) => { this._colorIndex = colorIndex; });
 
-    eventer.on('changeColor', function(colorIndex) { this._colorIndex = colorIndex; }, this);
-
-    this.$fullScreen.onclick = function() {
+    this.$fullScreen.onclick = () => {
       canvas.requestFullscreen();
     }
 
-    this.$save.onclick = function() {
+    this.$save.onclick = () => {
       const data = {};
 
       data.imageUrlData = canvas.toDataURL();
       data.params = {
-        cs: new Complex(that._paramView.csre(), that._paramView.csim()),
-        center: new Complex(that._paramView.centerX(), that._paramView.centerY()),
-        zoom: that._paramView.zoom(),
-        resolution: that._paramView.resolution(),
-        maxRepeat: that._paramView.maxRepeat(),
-        skip: that._paramView.skip(),
-        colorIndex: that._colorIndex,
+        cs: new Complex(this._paramView.csre(), this._paramView.csim()),
+        center: new Complex(this._paramView.centerX(), this._paramView.centerY()),
+        zoom: this._paramView.zoom(),
+        resolution: this._paramView.resolution(),
+        maxRepeat: this._paramView.maxRepeat(),
+        skip: this._paramView.skip(),
+        colorIndex: this._colorIndex,
       };
 
       eventer.emit('addSnapshot', data);
     }
 
-    this.$download.onclick = function() {
-      const filename = "cs_" + that._paramView.csre() + '+' + that._paramView.csim() + 'i '
-        + "ct_" + that._paramView.centerX() + '+' + that._paramView.centerY() + 'i '
-        + "zm_" + that._paramView.zoom() + ' '
-        + "rs_" + that._paramView.resolution() + ' '
-        + "rp_" + that._paramView.maxRepeat() + ' '
-        + "sp_" + that._paramView.skip() + ' ';
+    this.$download.onclick = () => {
+      const filename = "cs_" + this._paramView.csre() + '+' + this._paramView.csim() + 'i '
+        + "ct_" + this._paramView.centerX() + '+' + this._paramView.centerY() + 'i '
+        + "zm_" + this._paramView.zoom() + ' '
+        + "rs_" + this._paramView.resolution() + ' '
+        + "rp_" + this._paramView.maxRepeat() + ' '
+        + "sp_" + this._paramView.skip() + ' ';
 
       const a = document.createElement('a');
 
       if (canvas.toBlob) {
-        canvas.toBlob(function (blob) {
+        canvas.toBlob((blob) => {
           a.href = URL.createObjectURL(blob);
           a.download = filename + '.png';
           a.click();
@@ -589,21 +583,21 @@ class OperationView {
       }
     }
 
-    this.$url.onclick = function() {
+    this.$url.onclick = () => {
       const params = [];
-      params.push('csre=' + that._paramView.csre());
-      params.push('csim=' + that._paramView.csim());
-      params.push('ctre=' + that._paramView.centerX());
-      params.push('ctim=' + that._paramView.centerY());
-      params.push('zm=' + that._paramView.zoom());
-      params.push('rs=' + that._paramView.resolution());
-      params.push('rp=' + that._paramView.maxRepeat());
-      params.push('sp=' + that._paramView.skip());
-      params.push('ci=' + that._colorIndex);
+      params.push('csre=' + this._paramView.csre());
+      params.push('csim=' + this._paramView.csim());
+      params.push('ctre=' + this._paramView.centerX());
+      params.push('ctim=' + this._paramView.centerY());
+      params.push('zm=' + this._paramView.zoom());
+      params.push('rs=' + this._paramView.resolution());
+      params.push('rp=' + this._paramView.maxRepeat());
+      params.push('sp=' + this._paramView.skip());
+      params.push('ci=' + this._colorIndex);
 
       const url = location.href.replace(/\?.*/, '') + '?' + params.join('&');
-      that.$txUrl.value = url;
-      that.$txUrl.select();
+      this.$txUrl.value = url;
+      this.$txUrl.select();
       document.execCommand('copy')
     }
   }
@@ -620,7 +614,6 @@ class ColorsetsView {
   }
 
   init(params) {
-    const that = this;
     for(let i = 0; i < colorPalettes.length; i++) {
       const option = document.createElement('option');
       option.innerText = colorPalettes[i].name;
@@ -628,16 +621,16 @@ class ColorsetsView {
       this.$colors.appendChild(option);
     }
 
-    this.$colors.onchange = function() {
-      eventer.emit('changeColor', that.$colors.value);
+    this.$colors.onchange = () => {
+      eventer.emit('changeColor', this.$colors.value);
     };
 
-    eventer.on('selectColor', function(colorIndex) {
-      that.$colors.selectedIndex = colorIndex
-      if (that.$colors.selectedIndex < 0) {
-        that.$colors.selectedIndex = 0;
+    eventer.on('selectColor', (colorIndex) => {
+      this.$colors.selectedIndex = colorIndex
+      if (this.$colors.selectedIndex < 0) {
+        this.$colors.selectedIndex = 0;
       }
-      eventer.emit('changeColor', that.$colors.selectedIndex);
+      eventer.emit('changeColor', this.$colors.selectedIndex);
     }, this);
 
     eventer.emit('selectColor', params.ci);
@@ -652,12 +645,10 @@ class SnapshotsView {
   }
 
   init() {
-    eventer.on('addSnapshot', this.add, this);
+    eventer.on('addSnapshot', (data) => this.add(data));
   }
 
   add(data) {
-    const that = this;
-
     //
     // data.imageUrlData: 
     // data.params;
@@ -687,25 +678,25 @@ class SnapshotsView {
     snapshot.appendChild(image);
     snapshots.appendChild(snapshot);
 
-    image.onload = function() {
+    image.onload = () => {
       const delBtn = document.createElement('div');
       delBtn.className = "del";
       delBtn.innerText = "x";
       snapshot.appendChild(delBtn);
 
-      delBtn.onclick = function() {
+      delBtn.onclick = () => {
         snapshots.removeChild(snapshot);
       };
 
-      image.onclick = function() {
-        that._paramView.csre(params.cs.re);
-        that._paramView.csim(params.cs.im);
-        that._paramView.centerX(params.center.re);
-        that._paramView.centerY(params.center.im);
-        that._paramView.zoom(params.zoom);
-        that._paramView.resolution(params.resolution);
-        that._paramView.maxRepeat(params.maxRepeat);
-        that._paramView.skip(params.skip);
+      image.onclick = () => {
+        this._paramView.csre(params.cs.re);
+        this._paramView.csim(params.cs.im);
+        this._paramView.centerX(params.center.re);
+        this._paramView.centerY(params.center.im);
+        this._paramView.zoom(params.zoom);
+        this._paramView.resolution(params.resolution);
+        this._paramView.maxRepeat(params.maxRepeat);
+        this._paramView.skip(params.skip);
 
         eventer.emit('selectColor', params.colorIndex);
         eventer.emit('refresh');

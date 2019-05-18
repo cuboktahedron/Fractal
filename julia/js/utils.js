@@ -34,7 +34,7 @@ class Complex {
 };
 
 const Diagnosis = {
-  elapsedTime: async function(f) {
+  elapsedTime: async (f) => {
     const before = new Date();
     await f();
     return new Date() - before;
@@ -54,7 +54,7 @@ class SimpleEventEmitter {
     if (callerObj == null) {
       this.handlers[name].push(handler);
     } else {
-      this.handlers[name].push(function(palyload) { handler.call(callerObj, palyload) });
+      this.handlers[name].push((palyload) => { handler.call(callerObj, palyload) });
     }
   }
 
@@ -66,17 +66,17 @@ class SimpleEventEmitter {
 };
 
 const Process = {
-  sleep: function(ms) {
+  sleep: (ms) => {
     return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve();
-        }, ms);
+      setTimeout(() => {
+        resolve();
+      }, ms);
     });
   }
 };
 
 const WorkerUtils = {
-  createWorker: function(relativePath) {
+  createWorker: (relativePath) => {
     try {
       return this._createViaBlob(relativePath);
     } catch (e) {
@@ -84,7 +84,7 @@ const WorkerUtils = {
     }
   },
 
-  _createViaBlob: function(relativePath) {
+  _createViaBlob: (relativePath) => {
     var baseURL = window.location.href.replace(/\\/g, '/').replace(/\/[^\/]*$/, '/');
     var array = ['importScripts("' + baseURL + relativePath + '");'];
     var blob = new Blob(array, {type: 'text/javascript'});
