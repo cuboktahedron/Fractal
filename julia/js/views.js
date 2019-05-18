@@ -363,6 +363,15 @@ class ParameterView {
     this.resolution(params.rs);
     this.maxRepeat(params.rp);
     this.skip(params.sp);
+
+    this.$csre.onchange = function() { eventer.emit('refresh') };
+    this.$csim.onchange = function() { eventer.emit('refresh') };
+    this.$centerX.onchange = function() { eventer.emit('refresh') };
+    this.$centerY.onchange = function() { eventer.emit('refresh') };
+    this.$zoom.onchange = function() { eventer.emit('refresh') };
+    this.$resolution.onchange = function() { eventer.emit('refresh') };
+    this.$maxRepeat.onchange = function() { eventer.emit('refresh') };
+    this.$skip.onchange = function() { eventer.emit('refresh') };
   }
 
   centerX() {
