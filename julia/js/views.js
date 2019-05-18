@@ -1,18 +1,43 @@
 -'use strict';
 
+class MainView {
+  constructor(urlParams) {
+    const paramView = new ParameterView();
+    paramView.init(urlParams);
+
+    const canvasView = new CanvasView(paramView);
+    canvasView.init();
+
+    const operationView = new OperationView(paramView);
+    operationView.init();
+
+    const colorsetsView = new ColorsetsView();
+    colorsetsView.init(urlParams);
+
+    const snapshotsView = new SnapshotsView(paramView);
+    snapshotsView.init();
+
+    const noticeView = new NoticeView();
+    noticeView.init();
+  }
+}
+
 class CanvasView {
-  constructor() {
-    const that = this;
+  constructor(paramView) {
+    this._paramView = paramView;
+
     this.$canvas = document.getElementById('canvas');
     this._ctx = this.$canvas.getContext('2d');
-
     this.$backCanvas = document.createElement('canvas');
     this.$backCanvas.width = canvas.width;
     this.$backCanvas.height = canvas.height;
     this._backCtx = this.$backCanvas.getContext('2d');
     this._refreshCanceling = false;
+  }
 
-    this._paramView = paramView;
+  init() {
+    const that = this;
+
     setInterval(function() {
       that._refreshLoop();
     }, 100);
@@ -126,18 +151,18 @@ class CanvasView {
   }
 
   async _refresh(rough) {
-    let resolution = paramView.resolution();
+    let resolution = this._paramView.resolution();
     if (rough && resolution > 100) {
       resolution = 100;
     }
 
     const params = {
-      cs: new Complex(paramView.csre(), paramView.csim()),
-      center: new Complex(paramView.centerX(), paramView.centerY()),
-      zoom: paramView.zoom(),
+      cs: new Complex(this._paramView.csre(), this._paramView.csim()),
+      center: new Complex(this._paramView.centerX(), this._paramView.centerY()),
+      zoom: this._paramView.zoom(),
       resolution: resolution,
-      maxRepeat: paramView.maxRepeat(),
-      skip: paramView.skip(),
+      maxRepeat: this._paramView.maxRepeat(),
+      skip: this._paramView.skip(),
       colorIndex: this._colorIndex,
       rough: !!rough,
     };
@@ -183,7 +208,8 @@ class CanvasView {
       return;      
     }
 
-    noticeView.time(elapsedTime);
+    let sec = elapsedTime / 1000.0;
+    eventer.emit('changeNotice', 'processing time: ' + sec + 'sec');
   }
 
   async _refreshRoughly(params) {
@@ -287,7 +313,9 @@ class CanvasView {
 class NoticeView {
   constructor() {
     this.$notice = document.getElementById('notice');
+  }
 
+  init() {
     eventer.on('changeNotice', this.changeNotice, this);
   }
 
@@ -484,21 +512,20 @@ class ParameterView {
 };
 
 class OperationView {
-  constructor() {
-    const that = this;
+  constructor(paramView) {
+    this._paramView = paramView;
 
     this.$fullScreen = document.getElementById('op-fullscreen');
     this.$save = document.getElementById('op-save');
     this.$download = document.getElementById('op-download');
     this.$url = document.getElementById('op-url');
     this.$txUrl = document.getElementById('tx-url');
+  }
+
+  init() {
+    const that = this;
 
     eventer.on('changeColor', function(colorIndex) { this._colorIndex = colorIndex; }, this);
-
-    const inputs = document.getElementsByTagName("input");
-    for (let i = 0; i < inputs.length; i++) {
-      inputs[i].onchange = function() { eventer.emit('refresh') };
-    }
 
     this.$fullScreen.onclick = function() {
       canvas.requestFullscreen();
@@ -509,25 +536,25 @@ class OperationView {
 
       data.imageUrlData = canvas.toDataURL();
       data.params = {
-        cs: new Complex(paramView.csre(), paramView.csim()),
-        center: new Complex(paramView.centerX(), paramView.centerY()),
-        zoom: paramView.zoom(),
-        resolution: paramView.resolution(),
-        maxRepeat: paramView.maxRepeat(),
-        skip: paramView.skip(),
+        cs: new Complex(that._paramView.csre(), that._paramView.csim()),
+        center: new Complex(that._paramView.centerX(), that._paramView.centerY()),
+        zoom: that._paramView.zoom(),
+        resolution: that._paramView.resolution(),
+        maxRepeat: that._paramView.maxRepeat(),
+        skip: that._paramView.skip(),
         colorIndex: that._colorIndex,
       };
 
-      snapshotsView.add(data);
+      eventer.emit('addSnapshot', data);
     }
 
     this.$download.onclick = function() {
-      const filename = "cs_" + paramView.csre() + '+' + paramView.csim() + 'i '
-        + "ct_" + paramView.centerX() + '+' + paramView.centerY() + 'i '
-        + "zm_" + paramView.zoom() + ' '
-        + "rs_" + paramView.resolution() + ' '
-        + "rp_" + paramView.maxRepeat() + ' '
-        + "sp_" + paramView.skip() + ' ';
+      const filename = "cs_" + that._paramView.csre() + '+' + that._paramView.csim() + 'i '
+        + "ct_" + that._paramView.centerX() + '+' + that._paramView.centerY() + 'i '
+        + "zm_" + that._paramView.zoom() + ' '
+        + "rs_" + that._paramView.resolution() + ' '
+        + "rp_" + that._paramView.maxRepeat() + ' '
+        + "sp_" + that._paramView.skip() + ' ';
 
       const a = document.createElement('a');
 
@@ -550,14 +577,14 @@ class OperationView {
 
     this.$url.onclick = function() {
       const params = [];
-      params.push('csre=' + paramView.csre());
-      params.push('csim=' + paramView.csim());
-      params.push('ctre=' + paramView.centerX());
-      params.push('ctim=' + paramView.centerY());
-      params.push('zm=' + paramView.zoom());
-      params.push('rs=' + paramView.resolution());
-      params.push('rp=' + paramView.maxRepeat());
-      params.push('sp=' + paramView.skip());
+      params.push('csre=' + that._paramView.csre());
+      params.push('csim=' + that._paramView.csim());
+      params.push('ctre=' + that._paramView.centerX());
+      params.push('ctim=' + that._paramView.centerY());
+      params.push('zm=' + that._paramView.zoom());
+      params.push('rs=' + that._paramView.resolution());
+      params.push('rp=' + that._paramView.maxRepeat());
+      params.push('sp=' + that._paramView.skip());
       params.push('ci=' + that._colorIndex);
 
       const url = location.href.replace(/\?.*/, '') + '?' + params.join('&');
@@ -600,11 +627,19 @@ class ColorsetsView {
 };
 
 class SnapshotsView {
-  constructor() {
+  constructor(paramView) {
+    this._paramView = paramView;
+
     this.$snapshots = document.getElementById('snapshots');
   }
 
+  init() {
+    eventer.on('addSnapshot', this.add, this);
+  }
+
   add(data) {
+    const that = this;
+
     //
     // data.imageUrlData: 
     // data.params;
@@ -645,14 +680,14 @@ class SnapshotsView {
       };
 
       image.onclick = function() {
-        paramView.csre(params.cs.re);
-        paramView.csim(params.cs.im);
-        paramView.centerX(params.center.re);
-        paramView.centerY(params.center.im);
-        paramView.zoom(params.zoom);
-        paramView.resolution(params.resolution);
-        paramView.maxRepeat(params.maxRepeat);
-        paramView.skip(params.skip);
+        that._paramView.csre(params.cs.re);
+        that._paramView.csim(params.cs.im);
+        that._paramView.centerX(params.center.re);
+        that._paramView.centerY(params.center.im);
+        that._paramView.zoom(params.zoom);
+        that._paramView.resolution(params.resolution);
+        that._paramView.maxRepeat(params.maxRepeat);
+        that._paramView.skip(params.skip);
 
         eventer.emit('selectColor', params.colorIndex);
         eventer.emit('refresh');
