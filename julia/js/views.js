@@ -5,26 +5,27 @@ class MainView {
     const paramView = new ParameterView();
     paramView.init(urlParams);
 
-    const canvasView = new CanvasView(paramView);
-    canvasView.init();
-
     const operationView = new OperationView(paramView);
     operationView.init();
 
-    const colorsetsView = new ColorsetsView();
-    colorsetsView.init(urlParams);
+    const canvasView = new CanvasView(paramView, operationView);
+    canvasView.init();
 
     const snapshotsView = new SnapshotsView(paramView);
     snapshotsView.init();
 
     const noticeView = new NoticeView();
     noticeView.init();
+
+    const colorsetsView = new ColorsetsView();
+    colorsetsView.init(urlParams);
   }
 }
 
 class CanvasView {
-  constructor(paramView) {
+  constructor(paramView, operationView) {
     this._paramView = paramView;
+    this._operationView = operationView;
 
     this.$canvas = document.getElementById('canvas');
     this._ctx = this.$canvas.getContext('2d');
@@ -70,7 +71,7 @@ class CanvasView {
       const zoom = that._paramView.zoom();
       const diffX = ev.layerX - (that.$canvas.clientWidth / 2);
       const diffY = ev.layerY - (that.$canvas.clientHeight / 2);
-      const newCenterX = centerX + ((diffX / (that.$canvas.clientWidth / 2)) * (100 / zoom)); 
+      const newCenterX = centerX + ((diffX / (that.$canvas.clientWidth / 2)) * (100 / zoom));
       const newCenterY = centerY + ((diffY / (that.$canvas.clientHeight / 2)) * (100 / zoom));
   
       that._paramView.centerX(newCenterX);
@@ -83,15 +84,17 @@ class CanvasView {
       if (downed !== 0 && downed !== 2) {
         return;
       }
-  
-      const centerX = that._paramView.centerX();
-      const centerY = that._paramView.centerY();
-      const csre = that._paramView.csre();
-      const csim = that._paramView.csim();
+
+      if (downed === 0 && (ev.shiftKey || that._operationView.shifted())) {
+        downed = 2;
+      }
+
       const zoom = that._paramView.zoom();
-  
+
       if (downed === 0) { // left button
-        const  newCenterX = centerX - ((ev.movementX / (that.$canvas.clientWidth / 2)) * (100 / zoom)); 
+        const centerX = that._paramView.centerX();
+        const centerY = that._paramView.centerY();
+        const newCenterX = centerX - ((ev.movementX / (that.$canvas.clientWidth / 2)) * (100 / zoom)); 
         const newCenterY = centerY - ((ev.movementY / (that.$canvas.clientHeight / 2)) * (100 / zoom));
         that._paramView.centerX(newCenterX);
         that._paramView.centerY(newCenterY);
@@ -101,6 +104,8 @@ class CanvasView {
       }
   
       if (downed === 2) { // right button
+        const csre = that._paramView.csre();
+        const csim = that._paramView.csim();
         const newCsre = csre + (ev.movementX / (zoom * 10));
         const newCsim = csim + (ev.movementY / (zoom * 10));
         that._paramView.csre(newCsre);
@@ -113,12 +118,11 @@ class CanvasView {
     }
   
     this.$canvas.onmouseup = function(ev) {
-      if (downed !== ev.button) {
+      if (downed === -1) {
         return;
       }
     
       downed = -1;
-  
       eventer.emit('refresh');
     }
   
@@ -520,6 +524,7 @@ class OperationView {
     this.$download = document.getElementById('op-download');
     this.$url = document.getElementById('op-url');
     this.$txUrl = document.getElementById('tx-url');
+    this.$chkShift = document.getElementById('chk-shift');
   }
 
   init() {
@@ -592,6 +597,10 @@ class OperationView {
       that.$txUrl.select();
       document.execCommand('copy')
     }
+  }
+
+  shifted() {
+    return this.$chkShift.checked;
   }
 };
 
