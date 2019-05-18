@@ -116,8 +116,11 @@ class CanvasView {
       that._paramView.centerX(newCenterX);
       that._paramView.centerY(newCenterY);
   
-      eventer.emit('refresh');
-  
+      eventer.emit('refresh', true);
+      setTimeout(function() {
+        eventer.emit('refresh');
+      }, 200);
+
       ev.preventDefault();
     }
   }
