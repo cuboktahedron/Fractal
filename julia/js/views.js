@@ -30,8 +30,8 @@ class CanvasView {
     this.$canvas = document.getElementById('canvas');
     this._ctx = this.$canvas.getContext('2d');
     this.$backCanvas = document.createElement('canvas');
-    this.$backCanvas.width = canvas.width;
-    this.$backCanvas.height = canvas.height;
+    this.$backCanvas.width = this.$canvas.width;
+    this.$backCanvas.height = this.$canvas.height;
     this._backCtx = this.$backCanvas.getContext('2d');
     this._refreshCanceling = false;
     this._refreshing = false;
@@ -50,6 +50,53 @@ class CanvasView {
     });
 
     eventer.on('refresh', (rough) => this._refresh(rough));
+    eventer.on('beCanvasFullScreen', () => {
+       this.$canvas.requestFullscreen();
+    });
+
+    eventer.on('saveCanvas', () => {
+      const data = {};
+
+      data.$canvas = this.$canvas;
+      data.params = {
+        cs: new Complex(this._paramView.csre(), this._paramView.csim()),
+        center: new Complex(this._paramView.centerX(), this._paramView.centerY()),
+        zoom: this._paramView.zoom(),
+        resolution: this._paramView.resolution(),
+        maxRepeat: this._paramView.maxRepeat(),
+        skip: this._paramView.skip(),
+        colorIndex: this._colorIndex,
+      };
+
+      eventer.emit('addSnapshot', data);
+    });
+
+    eventer.on('downloadImage', () => {
+      const filename = "cs_" + this._paramView.csre() + '+' + this._paramView.csim() + 'i '
+        + "ct_" + this._paramView.centerX() + '+' + this._paramView.centerY() + 'i '
+        + "zm_" + this._paramView.zoom() + ' '
+        + "rs_" + this._paramView.resolution() + ' '
+        + "rp_" + this._paramView.maxRepeat() + ' '
+        + "sp_" + this._paramView.skip() + ' ';
+
+      const a = document.createElement('a');
+
+      if (this.$canvas.toBlob) {
+        this.$canvas.toBlob((blob) => {
+          a.href = URL.createObjectURL(blob);
+          a.download = filename + '.png';
+          a.click();
+        });
+      } else if (this.$canvas.msToBlob) {
+        a.href = URL.createObjectURL(this.$canvas.msToBlob());
+        a.download = filename + '.png';;
+        a.click();
+      } else {
+        a.href = this.$canvas.toDataURL('image/png');
+        a.download = filename;
+        a.click();
+      }
+    });
   }
 
   _addMouseEvent() {
@@ -533,55 +580,11 @@ class OperationView {
   }
 
   init() {
-    eventer.on('changeColor', (colorIndex) => { this._colorIndex = colorIndex; });
+    eventer.on('changeColor', (colorIndex) => this._colorIndex = colorIndex);
 
-    this.$fullScreen.onclick = () => {
-      canvas.requestFullscreen();
-    }
-
-    this.$save.onclick = () => {
-      const data = {};
-
-      data.imageUrlData = canvas.toDataURL();
-      data.params = {
-        cs: new Complex(this._paramView.csre(), this._paramView.csim()),
-        center: new Complex(this._paramView.centerX(), this._paramView.centerY()),
-        zoom: this._paramView.zoom(),
-        resolution: this._paramView.resolution(),
-        maxRepeat: this._paramView.maxRepeat(),
-        skip: this._paramView.skip(),
-        colorIndex: this._colorIndex,
-      };
-
-      eventer.emit('addSnapshot', data);
-    }
-
-    this.$download.onclick = () => {
-      const filename = "cs_" + this._paramView.csre() + '+' + this._paramView.csim() + 'i '
-        + "ct_" + this._paramView.centerX() + '+' + this._paramView.centerY() + 'i '
-        + "zm_" + this._paramView.zoom() + ' '
-        + "rs_" + this._paramView.resolution() + ' '
-        + "rp_" + this._paramView.maxRepeat() + ' '
-        + "sp_" + this._paramView.skip() + ' ';
-
-      const a = document.createElement('a');
-
-      if (canvas.toBlob) {
-        canvas.toBlob((blob) => {
-          a.href = URL.createObjectURL(blob);
-          a.download = filename + '.png';
-          a.click();
-        });
-      } else if (canvas.msToBlob) {
-        a.href = URL.createObjectURL(canvas.msToBlob());
-        a.download = filename + '.png';;
-        a.click();
-      } else {
-        a.href = canvas.toDataURL('image/png');
-        a.download = filename;
-        a.click();
-      }
-    }
+    this.$fullScreen.onclick = () => eventer.emit('beCanvasFullScreen');
+    this.$save.onclick = () => eventer.emit('saveCanvas');
+    this.$download.onclick = () => eventer.emit('downloadImage');
 
     this.$url.onclick = () => {
       const params = [];
@@ -650,8 +653,8 @@ class SnapshotsView {
 
   add(data) {
     //
-    // data.imageUrlData: 
-    // data.params;
+    // data.$canvas
+    // data.params
     //
     const params = data.params;
 
@@ -659,7 +662,7 @@ class SnapshotsView {
     const sumbnailCtx = sumbnailCanvas.getContext('2d');
     sumbnailCanvas.width = 100;
     sumbnailCanvas.height = 100;
-    sumbnailCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height,
+    sumbnailCtx.drawImage(data.$canvas, 0, 0, data.$canvas.width, data.$canvas.height,
       0, 0, sumbnailCanvas.width, sumbnailCanvas.height);
 
     const image = new Image();
