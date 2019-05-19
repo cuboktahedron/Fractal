@@ -32,6 +32,7 @@ class CanvasView {
     this.$backCanvas = document.createElement('canvas');
     this.$backCanvas.width = this.$canvas.width;
     this.$backCanvas.height = this.$canvas.height;
+    this.$downloadAnchor = document.getElementById('download-anchor');
     this._backCtx = this.$backCanvas.getContext('2d');
     this._refreshCanceling = false;
     this._refreshing = false;
@@ -87,22 +88,21 @@ class CanvasView {
         + "rp_" + this._paramView.maxRepeat() + ' '
         + "sp_" + this._paramView.skip() + ' ';
 
-      const a = document.createElement('a');
-
       if (this.$canvas.toBlob) {
         this.$canvas.toBlob((blob) => {
-          a.href = URL.createObjectURL(blob);
-          a.download = filename + '.png';
-          a.click();
+          this.$downloadAnchor.href = URL.createObjectURL(blob);
+          this.$downloadAnchor.style="display:none;"
+          this.$downloadAnchor.download = filename + '.png';
+          this.$downloadAnchor.click();
         });
       } else if (this.$canvas.msToBlob) {
-        a.href = URL.createObjectURL(this.$canvas.msToBlob());
-        a.download = filename + '.png';;
-        a.click();
+        this.$downloadAnchor.href = URL.createObjectURL(this.$canvas.msToBlob());
+        this.$downloadAnchor.download = filename + '.png';;
+        this.$downloadAnchor.click();
       } else {
-        a.href = this.$canvas.toDataURL('image/png');
-        a.download = filename;
-        a.click();
+        this.$downloadAnchor.href = this.$canvas.toDataURL('image/png');
+        this.$downloadAnchor.download = filename;
+        this.$downloadAnchor.click();
       }
     });
   }

@@ -101,3 +101,7 @@ body {
     color: white;
     cursor: pointer;
   }
+
+  #download-anchor {
+    display: none;
+  }
