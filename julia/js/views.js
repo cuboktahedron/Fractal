@@ -51,7 +51,15 @@ class CanvasView {
 
     eventer.on('refresh', (rough) => this._refresh(rough));
     eventer.on('beCanvasFullScreen', () => {
-       this.$canvas.requestFullscreen();
+      if (this.$canvas.requestFullscreen) {
+        this.$canvas.requestFullscreen();
+      } else if (this.$canvas.webkitRequestFullscreen) {
+        this.$canvas.webkitRequestFullscreen();
+      } else if (this.$canvas.mozRequestFullScreen) {
+        this.$canvas.mozRequestFullScreen();
+      } else {
+        alert('not supported');
+      }
     });
 
     eventer.on('saveCanvas', () => {
