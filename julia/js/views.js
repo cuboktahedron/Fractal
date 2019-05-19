@@ -179,7 +179,7 @@ class CanvasView {
       eventer.emit('refresh');
     }
   
-    this.$canvas.onmousewheel = (ev) => {
+    this.$canvas.onwheel = (ev) => {
       const centerX = this._paramView.centerX();
       const centerY = this._paramView.centerY();
       const diffX = ev.layerX - (this.$canvas.clientWidth / 2);
@@ -187,7 +187,8 @@ class CanvasView {
       const px = centerX + ((diffX / (this.$canvas.clientWidth / 2)) * (100 /  this._paramView.zoom())); 
       const py = centerY + ((diffY / (this.$canvas.clientHeight / 2)) * (100 /  this._paramView.zoom()));
   
-      if (ev.wheelDelta > 0) {
+      const direction = (ev.deltaY < 0 || ev.wheelDelta > 0) ? 1 : -1;
+      if (direction > 0) {
         this._paramView.zoomIn();
       } else {
         this._paramView.zoomOut();
