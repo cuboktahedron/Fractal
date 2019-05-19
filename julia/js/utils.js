@@ -33,13 +33,13 @@ class Complex {
   }
 };
 
-const Diagnosis = {
-  elapsedTime: async (f) => {
+class Diagnosis {
+  static async elapsedTime(f) {
     const before = new Date();
     await f();
     return new Date() - before;
   }
-};
+}
 
 class SimpleEventEmitter {
   constructor() {
@@ -61,8 +61,8 @@ class SimpleEventEmitter {
   }
 };
 
-const Process = {
-  sleep: (ms) => {
+class Process {
+  static sleep(ms) {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve();
@@ -71,16 +71,16 @@ const Process = {
   }
 };
 
-const WorkerUtils = {
-  createWorker: (relativePath) => {
+class WorkerUtils {
+  static createWorker(relativePath) {
     try {
       return this._createViaBlob(relativePath);
     } catch (e) {
       return new Worker(relativePath);
     }
-  },
+  }
 
-  _createViaBlob: (relativePath) => {
+  static _createViaBlob(relativePath) {
     var baseURL = window.location.href.replace(/\\/g, '/').replace(/\/[^\/]*$/, '/');
     var array = ['importScripts("' + baseURL + relativePath + '");'];
     var blob = new Blob(array, {type: 'text/javascript'});
