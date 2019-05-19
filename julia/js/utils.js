@@ -46,16 +46,12 @@ class SimpleEventEmitter {
     this.handlers = {};
   }
 
-  on(name, handler, callerObj) {
+  on(name, handler) {
     if (this.handlers[name] === undefined) {
       this.handlers[name] = [];
     }
 
-    if (callerObj == null) {
-      this.handlers[name].push(handler);
-    } else {
-      this.handlers[name].push((palyload) => { handler.call(callerObj, palyload) });
-    }
+    this.handlers[name].push(handler);
   }
 
   emit(name, payload) {
