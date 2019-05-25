@@ -407,6 +407,17 @@ class ParameterView {
   }
 
   init(params) {
+    params = Object.assign({}, {
+      csre: this.$csre.value,
+      csim: this.$csim.value,
+      centerX: this.$centerX.value,
+      centerY: this.$centerY.value,
+      zoom: this.$zoom.value,
+      resolution: this.$resolution.value,
+      maxRepeat: this.$maxRepeat.value,
+      skip: this.$skip.value,
+    }, params)
+
     this.csre(params.csre);
     this.csim(params.csim);
     this.centerX(params.ctre);
@@ -436,7 +447,7 @@ class ParameterView {
     } else {
       let value = Number(arguments[0]);
       if (isNaN(value)) {
-        return;
+        value = 0;
       } else if (value > this.$csre.max) {
         value = this.$csre.max;
       } else if (value < this.$csre.min) {
@@ -453,7 +464,7 @@ class ParameterView {
     } else {
       let value = Number(arguments[0]);
       if (isNaN(value)) {
-        return;
+        value = 0;
       } else if (value > this.$csim.max) {
         value = this.$csim.max;
       } else if (value < this.$csim.min) {
@@ -470,7 +481,7 @@ class ParameterView {
     } else {
       let value = Number(arguments[0]);
       if (isNaN(value)) {
-        return;
+        value = 0;
       } else if (value > this.$centerX.max) {
         value = this.$centerX.max;
       } else if (value < this.$centerX.min) {
@@ -487,7 +498,7 @@ class ParameterView {
     } else {
       let value = Number(arguments[0]);
       if (isNaN(value)) {
-        return;
+        value = 0;
       } else if (value > this.$centerY.max) {
         value = this.$centerY.max;
       } else if (value < this.$centerY.min) {
@@ -504,7 +515,7 @@ class ParameterView {
     } else {
       let value = Number(arguments[0]);
       if (isNaN(value)) {
-        return;
+        value = 100;
       } else if (value > this.$zoom.max) {
         value = this.$zoom.max;
       } else if (value < this.$zoom.min) {
@@ -521,7 +532,7 @@ class ParameterView {
     } else {
       let value = Number(arguments[0]);
       if (isNaN(value)) {
-        return;
+        value = 75;
       } else if (value > this.$resolution.max)  {
         value = this.$resolution.max;
       } else if (value < this.$resolution.min)  {
@@ -538,7 +549,7 @@ class ParameterView {
     } else {
       let value = Number(arguments[0]);
       if (isNaN(value)) {
-        return;
+        value = 500;
       } else if (value > this.$maxRepeat.max)  {
         value = this.$maxRepeat.max;
       } else if (value < 0) {
@@ -555,7 +566,7 @@ class ParameterView {
     } else {
       let value = Number(arguments[0]);
       if (isNaN(value)) {
-        return;
+        value = 0;
       } else if (value > this.$skip.max)  {
         value = this.$skip.max;
       } else if (value < this.$skip.min)  {
