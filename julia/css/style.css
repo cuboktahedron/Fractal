@@ -133,3 +133,43 @@ body {
     height: 16px;
     width: 16px;
   }
+
+  #sel-colors option.preset {
+    background: pink;
+  }
+
+  #color-setting {
+    background: #fff8;
+    height: 100%;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+  }
+
+  #color-picker {
+    display: none;
+  }
+
+  #custom-colorset {
+    background: #fff8;
+    display: none;
+    height: 100%;
+    text-align: center;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+  }
+
+  #inner-custom-colorset {
+    background: black;
+    bottom: 0;
+    height: 60px;
+    left: 0;
+    padding: 16px;
+    position: absolute;
+    margin: auto;
+    right: 0;
+    top: 0;
+  }

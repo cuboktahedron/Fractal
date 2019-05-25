@@ -648,6 +648,8 @@ class ColorsetsView {
     this.$backgroundColor = document.getElementById('background-color');
     this.$finalColor = document.getElementById('final-color');
     this.$ordinalColors = document.getElementById('ordinal-colors');
+    this.$customColorset = document.getElementById('custom-colorset');
+    this.$colorPicker = document.getElementById('color-picker');
   }
 
   init(params) {
@@ -655,8 +657,14 @@ class ColorsetsView {
       const option = document.createElement('option');
       option.innerText = colorPalettes[i].name;
       option.value = i;
+      option.className = 'preset';
       this.$colors.appendChild(option);
     }
+
+    const customOption = document.createElement('option');
+    customOption.value = colorPalettes.length;
+    customOption.innerText = '<< new >>';
+    this.$colors.appendChild(customOption);
 
     this.$colors.onchange = () => this.changeColor(this.$colors.value);
 
@@ -664,7 +672,10 @@ class ColorsetsView {
     eventer.emit('selectColor', params.ci);
   }
 
-  changeColor(colorIndex) {
+  async changeColor(colorIndex) {
+    // TODO: implement custom colorset
+    // const ccView = await this.openCustomColorset();
+
     const palette = colorPalettes[colorIndex];
     this.$backgroundColor.style.backgroundColor = palette.background;
     this.$finalColor.style.backgroundColor = palette.background2;
@@ -681,6 +692,7 @@ class ColorsetsView {
         const color = document.createElement('div');
         color.className = 'ordinal-color';
         color.style.backgroundColor = palette.colors[no];
+        color.onclick = () => this.openColorPicker(color);
 
         colorRow.appendChild(color);
       }
@@ -691,6 +703,14 @@ class ColorsetsView {
     eventer.emit('changeColor', this.$colors.value);
   }
 
+  async openCustomColorset() {
+    const ccView = new CustomColorsetView();
+    ccView.init();
+    await ccView.show();
+
+    return ccView;
+  }
+
   selectColor(colorIndex) {
     this.$colors.selectedIndex = colorIndex
     if (this.$colors.selectedIndex < 0) {
@@ -698,6 +718,13 @@ class ColorsetsView {
     }
 
     this.changeColor(this.$colors.selectedIndex);
+  }
+
+  openColorPicker($color) {
+    this.$colorPicker.click();
+    this.$colorPicker.onchange = () => {
+      $color.style.background = this.$colorPicker.value;
+    }
   }
 };
 
@@ -766,5 +793,55 @@ class SnapshotsView {
         eventer.emit('refresh');
       };
     }
+  }
+};
+
+class CustomColorsetView {
+  constructor() {
+    this.$customColorset = document.getElementById('custom-colorset');
+    this.$ok = document.querySelector('#custom-colorset .ok');
+    this.$cancel = document.querySelector('#custom-colorset .cancel');
+    this.$colorNum = document.querySelector('#custom-colorset .color-num');
+  }
+
+  init() {
+    this._isOk = false;
+    this._colorNum = 16;
+    this.$colorNum.value = this._colorNum;
+  }
+
+  async show() {
+    this.$customColorset.style.display = 'block';
+    this.$ok.onclick = () => this.ok();
+    this.$cancel.onclick = () => this.cancel();
+
+    while (this.isShowing()) {
+      await Process.sleep(10);
+    }
+  }
+
+  hide() {
+    this.$customColorset.style.display = 'none';
+  }
+
+  isOk() {
+    return this._isOk;
+  }
+
+  colorNum() {
+    return this._colorNum;
+  }
+
+  isShowing() {
+    return this.$customColorset.style.display !== 'none';
+  }
+
+  ok() {
+    this.hide();
+    this._isOk = true;
+  }
+
+  cancel() {
+    this.hide();
   }
 };
