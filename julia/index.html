@@ -17,27 +17,27 @@
   <div class="parameters">
     <div class="parameter">
       <p class="lt">c&nbsp;=&nbsp;</p>
-      <p class="rt"><input id="cs-re" type="text" value="-0.70176"> + <input id="cs-im" type="text" value="-0.3842">i</p>
+      <p class="rt"><input id="cs-re" type="text" value="-0.70176" min="-3" max="3"> + <input id="cs-im" type="text" value="-0.3842" min="-3" max="3">i</p>
     </div>
     <div class="parameter">
       <p class="lt">center&nbsp;=&nbsp;</p>
-      <p class="rt"><input id="center-x" type="text" value="0.00"> + <input id="center-y" type="text" value="0.00">i</p>
+      <p class="rt"><input id="center-x" type="text" value="0.00"min="-3" max="3"> + <input id="center-y" type="text" value="0.00" min="-3" max="3">i</p>
     </div>
     <div class="parameter">
       <p class="lt">zoom&nbsp;=&nbsp;</p>
-      <p class="rt"><input id="zoom" type="number" value="100" step="1" min="1">%</p>
+      <p class="rt"><input id="zoom" type="number" value="100" step="1" min="1" max="1000000000000">%</p>
     </div>
     <div class="parameter">
       <p class="lt">resolution&nbsp;=&nbsp;</p>
-      <p class="rt"><input id="resolution" type="number" value="75" step="1" min="1"></p>
+      <p class="rt"><input id="resolution" type="number" value="75" step="1" min="1" max="2400"></p>
     </div>
     <div class="parameter">
       <p class="lt">maxRepeat&nbsp;=&nbsp;</p>
-      <p class="rt"><input id="max-Repeat" type="number" value="500" step="1" min="1"></p>
+      <p class="rt"><input id="max-Repeat" type="number" value="500" step="1" min="1" max="10000000"></p>
     </div>
     <div class="parameter">
       <p class="lt">skip&nbsp;=&nbsp;</p>
-      <p class="rt"><input id="skip" type="number" value="0" step="1" min="0"></p>
+      <p class="rt"><input id="skip" type="number" value="0" step="1" min="0" max="10000000"></p>
     </div>
   </div>
   <div id="operation">

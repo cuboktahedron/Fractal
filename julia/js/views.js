@@ -416,40 +416,18 @@ class ParameterView {
     this.maxRepeat(params.rp);
     this.skip(params.sp);
 
-    this.$csre.onchange = () => { eventer.emit('refresh') };
-    this.$csim.onchange = () => { eventer.emit('refresh') };
-    this.$centerX.onchange = () => { eventer.emit('refresh') };
-    this.$centerY.onchange = () => { eventer.emit('refresh') };
-    this.$zoom.onchange = () => { eventer.emit('refresh') };
-    this.$resolution.onchange = () => { eventer.emit('refresh') };
-    this.$maxRepeat.onchange = () => { eventer.emit('refresh') };
-    this.$skip.onchange = () => { eventer.emit('refresh') };
+    this.$csre.onchange = () => { this._reset('csre'); eventer.emit('refresh') };
+    this.$csim.onchange = () => { this._reset('csim'); eventer.emit('refresh') };
+    this.$centerX.onchange = () => { this._reset('centerX'); eventer.emit('refresh') };
+    this.$centerY.onchange = () => { this._reset('centerY'); eventer.emit('refresh') };
+    this.$zoom.onchange = () => { this._reset('zoom'); eventer.emit('refresh') };
+    this.$resolution.onchange = () => { this._reset('resolution'); eventer.emit('refresh') };
+    this.$maxRepeat.onchange = () => { this._reset('maxRepeat'); eventer.emit('refresh') };
+    this.$skip.onchange = () => { this._reset('skip'); eventer.emit('refresh') };
   }
 
-  centerX() {
-    if (arguments.length === 0) {
-      return +this.$centerX.value;
-    } else {
-      let value = Number(arguments[0]);
-      if (isNaN(value)) {
-        return;
-      }
-
-      this.$centerX.value = value;
-    }
-  }
-
-  centerY() {
-    if (arguments.length === 0) {
-      return +this.$centerY.value;
-    } else {
-      let value = Number(arguments[0]);
-      if (isNaN(value)) {
-        return;
-      }
-
-      this.$centerY.value = value;
-    }
+  _reset(prop) {
+    this[prop](this[prop]());
   }
 
   csre() {
@@ -459,6 +437,10 @@ class ParameterView {
       let value = Number(arguments[0]);
       if (isNaN(value)) {
         return;
+      } else if (value > this.$csre.max) {
+        value = this.$csre.max;
+      } else if (value < this.$csre.min) {
+        value = this.$csre.min;
       }
 
       this.$csre.value = value;
@@ -472,9 +454,30 @@ class ParameterView {
       let value = Number(arguments[0]);
       if (isNaN(value)) {
         return;
+      } else if (value > this.$csim.max) {
+        value = this.$csim.max;
+      } else if (value < this.$csim.min) {
+        value = this.$csim.min;
       }
 
       this.$csim.value = value;
+    }
+  }
+
+  centerX() {
+    if (arguments.length === 0) {
+      return +this.$centerX.value;
+    } else {
+      let value = Number(arguments[0]);
+      if (isNaN(value)) {
+        return;
+      } else if (value > this.$centerX.max) {
+        value = this.$centerX.max;
+      } else if (value < this.$centerX.min) {
+        value = this.$centerX.min;
+      }
+
+      this.$centerX.value = value;
     }
   }
 
@@ -485,6 +488,10 @@ class ParameterView {
       let value = Number(arguments[0]);
       if (isNaN(value)) {
         return;
+      } else if (value > this.$centerY.max) {
+        value = this.$centerY.max;
+      } else if (value < this.$centerY.min) {
+        value = this.$centerY.min;
       }
 
       this.$centerY.value = value;
@@ -498,8 +505,10 @@ class ParameterView {
       let value = Number(arguments[0]);
       if (isNaN(value)) {
         return;
-      } else if (value <= 0) {
-        value = 1;
+      } else if (value > this.$zoom.max) {
+        value = this.$zoom.max;
+      } else if (value < this.$zoom.min) {
+        value = this.$zoom.min;
       }
 
       this.$zoom.value = value;
@@ -513,12 +522,12 @@ class ParameterView {
       let value = Number(arguments[0]);
       if (isNaN(value)) {
         return;
-      } else if (value >= 2400) {
-        value = 2400;
-      } else if (value <= 0) {
-        value = 1;
+      } else if (value > this.$resolution.max)  {
+        value = this.$resolution.max;
+      } else if (value < this.$resolution.min)  {
+        value = this.$resolution.min;
       }
-
+      
       this.$resolution.value = value;
     }
   }
@@ -530,9 +539,9 @@ class ParameterView {
       let value = Number(arguments[0]);
       if (isNaN(value)) {
         return;
-      } else if (value >= 10000) {
-        value = 10000;
-      } else if (value <= 0) {
+      } else if (value > this.$maxRepeat.max)  {
+        value = this.$maxRepeat.max;
+      } else if (value < 0) {
         value = 1;
       }
 
@@ -547,8 +556,10 @@ class ParameterView {
       let value = Number(arguments[0]);
       if (isNaN(value)) {
         return;
-      } else if (value < 0) {
-        value = 0;
+      } else if (value > this.$skip.max)  {
+        value = this.$skip.max;
+      } else if (value < this.$skip.min)  {
+        value = this.$skip.min;
       }
 
       this.$skip.value = value;
