@@ -645,6 +645,9 @@ class ColorsetsView {
   constructor() {
     this.$colorsets = document.getElementById('colorsets');
     this.$colors = document.getElementById('sel-colors');
+    this.$backgroundColor = document.getElementById('background-color');
+    this.$finalColor = document.getElementById('final-color');
+    this.$ordinalColors = document.getElementById('ordinal-colors');
   }
 
   init(params) {
@@ -655,19 +658,46 @@ class ColorsetsView {
       this.$colors.appendChild(option);
     }
 
-    this.$colors.onchange = () => {
-      eventer.emit('changeColor', this.$colors.value);
-    };
+    this.$colors.onchange = () => this.changeColor(this.$colors.value);
 
-    eventer.on('selectColor', (colorIndex) => {
-      this.$colors.selectedIndex = colorIndex
-      if (this.$colors.selectedIndex < 0) {
-        this.$colors.selectedIndex = 0;
-      }
-      eventer.emit('changeColor', this.$colors.selectedIndex);
-    }, this);
-
+    eventer.on('selectColor', (colorIndex) => this.selectColor(colorIndex));
     eventer.emit('selectColor', params.ci);
+  }
+
+  changeColor(colorIndex) {
+    const palette = colorPalettes[colorIndex];
+    this.$backgroundColor.style.backgroundColor = palette.background;
+    this.$finalColor.style.backgroundColor = palette.background2;
+
+    const cpr = 24;
+    this.$ordinalColors.innerHTML = '';
+    const colorNum = palette.colors.length;
+    const rowMax = colorNum / cpr;
+    for (let row = 0; row < rowMax; row++) {
+      const colorRow = document.createElement('div');
+      colorRow.className = 'ordinal-colors-row';
+
+      for (let no = row * cpr; no < (row + 1) * cpr && no < colorNum; no++) {
+        const color = document.createElement('div');
+        color.className = 'ordinal-color';
+        color.style.backgroundColor = palette.colors[no];
+
+        colorRow.appendChild(color);
+      }
+
+      this.$ordinalColors.appendChild(colorRow);
+    }
+
+    eventer.emit('changeColor', this.$colors.value);
+  }
+
+  selectColor(colorIndex) {
+    this.$colors.selectedIndex = colorIndex
+    if (this.$colors.selectedIndex < 0) {
+      this.$colors.selectedIndex = 0;
+    }
+
+    this.changeColor(this.$colors.selectedIndex);
   }
 };
 

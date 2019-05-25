@@ -24,7 +24,7 @@ body {
 
   #side {
     float: left;
-    min-width: 300px;
+    min-width: 450px;
     max-width: 600px;
     padding: 4px;
   }
@@ -104,4 +104,32 @@ body {
 
   #download-anchor {
     display: none;
+  }
+
+  #special-colors, #ordinal-colors {
+    border-collapse: collapse;
+    display: table;
+    margin-bottom: 4px;
+  }
+
+  #background-color, #final-color {
+    background: green;
+    border: solid 1px white;
+    box-sizing: border-box;
+    display: table-cell;
+    height: 32px;
+    width: 32px;
+  }
+
+  #ordinal-colors .ordinal-colors-row {
+    display: table-row;
+  }
+
+  #ordinal-colors .ordinal-color {
+    background: green;
+    border: solid 1px white;
+    box-sizing: border-box;
+    display: table-cell;
+    height: 16px;
+    width: 16px;
   }
