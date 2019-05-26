@@ -1,6 +1,6 @@
 'use strict';
 
-const colorPalettes = [
+const PresetColorPalettes = [
   {
     name: 'default(16)',
     background: '#000000',

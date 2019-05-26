@@ -650,12 +650,18 @@ class ColorsetsView {
     this.$colorPicker = document.getElementById('color-picker');
     this.$opDelColor = document.getElementById('op-del-color');
 
-    this._customColorPalettes = [];
     this._colorPalettes = [];
   }
 
   init(params) {
-    this._initColorSelection();
+    try {
+      this._restoreFromLocalStorage();
+      this._initColorSelection();
+    } catch (e) {
+      console.warn('Failed in restoring custom color palettes.');
+      localStorage.removeItem('colorPalettes');
+      this._initColorSelection();
+    }
 
     this.$colors.onchange = () => this.changeColor(this.$colors.value);
     this.$colors.onfocus = () => { this.$colors.dataset.prevIndex = this.$colors.value; }
@@ -668,30 +674,36 @@ class ColorsetsView {
 
   _initColorSelection() {
     this.$colors.innerHTML = '';
-
-    for(let i = 0; i < colorPalettes.length; i++) {
+    for(let i = 0; i < this._colorPalettes.length; i++) {
+      let colorPalette = this._colorPalettes[i];
       const option = document.createElement('option');
-      option.innerText = colorPalettes[i].name;
+      option.innerText = colorPalette.name;
       option.value = i;
-      option.className = 'preset';
-      this.$colors.appendChild(option);
-    }
-
-    for(let i = 0; i < this._customColorPalettes.length; i++) {
-      const option = document.createElement('option');
-      option.innerText = this._customColorPalettes[i].name;
-      option.value = colorPalettes.length + i;
+      option.className = colorPalette.preset ? 'preset' : '';
       this.$colors.appendChild(option);
     }
 
     const customOption = document.createElement('option');
-    customOption.value = colorPalettes.length + this._customColorPalettes.length;
+    customOption.value = this._colorPalettes.length;
     customOption.innerText = '<< new >>';
     this.$colors.appendChild(customOption);
+  }
 
-    this._colorPalettes = []
-      .concat(JSON.parse(JSON.stringify(colorPalettes)))
-      .concat(JSON.parse(JSON.stringify(this._customColorPalettes)));
+  _restoreFromLocalStorage() {
+    const presets = JSON.parse(JSON.stringify(PresetColorPalettes));
+    const colorpalettes = localStorage.getItem('colorPalettes');
+    if (colorpalettes == null) {
+      this._colorPalettes = presets;
+      return;
+    }
+
+    const customColorPalettes = JSON.parse(colorpalettes).filter(palette => !palette.preset);
+    this._colorPalettes = [].concat(presets).concat(customColorPalettes);
+  }
+
+  _saveToLocalStore() {
+    const colorPalettes = JSON.stringify(this._colorPalettes);
+    localStorage.setItem('colorPalettes', colorPalettes);
   }
 
   async changeColor(colorIndex) {
@@ -776,8 +788,9 @@ class ColorsetsView {
         preset: false,
       };
 
-      this._customColorPalettes.push(newcolorPalette);
+      this._colorPalettes.push(newcolorPalette);
       this._initColorSelection();
+      this._saveToLocalStore();
       eventer.emit('selectColor', colorIndex);
     } else {
       this.$colors.selectedIndex = this.$colors.dataset.prevIndex;
@@ -804,7 +817,6 @@ class ColorsetsView {
   }
 
   openColorPicker($color, palette) {
-    debugger;
     this.$colorPicker.value = $color.dataset.color;
     this.$colorPicker.click();
     this.$colorPicker.onchange = () => {
@@ -818,19 +830,21 @@ class ColorsetsView {
       }
 
       $color.dataset.color = this.$colorPicker.value;
+      this._saveToLocalStore();
       eventer.emit('refresh');
     }
   }
 
   delColor() {
-    const customColorIndex = +this.$colors.selectedIndex - colorPalettes.length;
-    if (customColorIndex < 0) {
+    const colorIndex = +this.$colors.selectedIndex;
+    if (colorIndex < 0) {
       return;
     }
 
-    this._customColorPalettes.splice(customColorIndex, 1);
+    this._colorPalettes.splice(colorIndex, 1);
+    this._saveToLocalStore();
     this._initColorSelection();
-    eventer.emit('selectColor', customColorIndex + colorPalettes.length - 1);
+    eventer.emit('selectColor', colorIndex - 1);
   }
 };
 
