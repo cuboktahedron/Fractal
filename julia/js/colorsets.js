@@ -3,8 +3,8 @@
 const colorPalettes = [
   {
     name: 'default(16)',
-    background: '#000',
-    background2: '#000',
+    background: '#000000',
+    background2: '#000000',
     colors: [
       "#3f32ae", "#e30ec2", "#baaaff", "#ffffff",
       "#ff949d", "#e80200", "#7a243d", "#000000",
@@ -14,8 +14,8 @@ const colorPalettes = [
     preset: true
   }, {
     name: 'grayscale(16)',
-    background: '#000',
-    background2: '#000',
+    background: '#000000',
+    background2: '#000000',
     colors: [
       "#000", "#111", "#222", "#333",
       "#444", "#555", "#666", "#777",
@@ -25,8 +25,8 @@ const colorPalettes = [
     preset: true
   }, {
     name: 'grayscale(256)',
-    background: '#000',
-    background2: '#fff',
+    background: '#000000',
+    background2: '#ffffff',
     colors: [
       "#000000", "#010101", "#020202", "#030303",
       "#040404", "#050505", "#060606", "#070707",
@@ -96,8 +96,8 @@ const colorPalettes = [
     preset: true
   }, {
     name: 'black-blue(256)',
-    background: '#000',
-    background2: '#ff0',
+    background: '#000000',
+    background2: '#ffff00',
     colors: [
       "#000000", "#000001", "#000002", "#000003",
       "#000004", "#000005", "#000006", "#000007",
@@ -167,8 +167,8 @@ const colorPalettes = [
     preset: true
   }, {
     name: 'black-green(256)',
-    background: '#000',
-    background2: '#f0f',
+    background: '#00000',
+    background2: '#ff00ff',
     colors: [
       "#000000","#000100","#000200","#000300",
       "#000400","#000500","#000600","#000700",
@@ -238,8 +238,8 @@ const colorPalettes = [
     preset: true
   }, {
     name: 'black-red(256)',
-    background: '#000',
-    background2: '#0ff',
+    background: '#000000',
+    background2: '#00ffff',
     colors: [
       "#000000","#010000","#020000","#030000",
       "#040000","#050000","#060000","#070000",
@@ -309,17 +309,17 @@ const colorPalettes = [
     preset: true
   }, {
     name: 'binary',
-    background: '#000',
-    background2: '#fff',
+    background: '#000000',
+    background2: '#ffffff',
     colors: [
-      "#000",
-      "#fff",
+      "#000000",
+      "#ffffff",
     ],
     preset: true
   }, {
     name: 'cycle(12)',
-    background: '#000',
-    background2: '#fff',
+    background: '#000000',
+    background2: '#ffffff',
     colors: [
       "#e60012",
       "#f39800",
@@ -337,8 +337,8 @@ const colorPalettes = [
     preset: true
   }, {
     name: 'cycle(24)',
-    background: '#000',
-    background2: '#fff',
+    background: '#000000',
+    background2: '#ffffff',
     colors: [
       '#E60012',
       '#EB6100',

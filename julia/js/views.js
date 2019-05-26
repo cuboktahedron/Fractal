@@ -644,8 +644,7 @@ class ColorsetsView {
   constructor() {
     this.$colorsets = document.getElementById('colorsets');
     this.$colors = document.getElementById('sel-colors');
-    this.$backgroundColor = document.getElementById('background-color');
-    this.$finalColor = document.getElementById('final-color');
+    this.$specialColors = document.getElementById('special-colors');
     this.$ordinalColors = document.getElementById('ordinal-colors');
     this.$customColorset = document.getElementById('custom-colorset');
     this.$colorPicker = document.getElementById('color-picker');
@@ -703,8 +702,27 @@ class ColorsetsView {
 
     this.$colors.dataset.prevIndex = this.$colors.value;
     const palette = this._colorPalettes[colorIndex];
-    this.$backgroundColor.style.backgroundColor = palette.background;
-    this.$finalColor.style.backgroundColor = palette.background2;
+
+    this.$specialColors.innerHTML = '';
+    const backgroundColor = document.createElement('div');
+    backgroundColor.id = 'background-color';
+    backgroundColor.style.backgroundColor = palette.background;
+    backgroundColor.dataset.color = palette.background;
+    backgroundColor.dataset.no = -1;
+    if (!palette.preset) {
+      backgroundColor.onclick = () => this.openColorPicker(backgroundColor, palette);
+    }
+    this.$specialColors.appendChild(backgroundColor);
+
+    const finalColor = document.createElement('div');
+    finalColor.id = 'final-color';
+    finalColor.style.backgroundColor = palette.background2;
+    finalColor.dataset.color = palette.background2;
+    finalColor.dataset.no = -2;
+    if (!palette.preset) {
+      finalColor.onclick = () => this.openColorPicker(finalColor, palette);
+    }
+    this.$specialColors.appendChild(finalColor);
 
     const cpr = 24;
     this.$ordinalColors.innerHTML = '';
@@ -718,7 +736,11 @@ class ColorsetsView {
         const color = document.createElement('div');
         color.className = 'ordinal-color';
         color.style.backgroundColor = palette.colors[no];
-        color.onclick = () => this.openColorPicker(color);
+        color.dataset.color = palette.colors[no];
+        color.dataset.no = no;
+        if (!palette.preset) {
+          color.onclick = () => this.openColorPicker(color, palette);
+        }
 
         colorRow.appendChild(color);
       }
@@ -742,12 +764,12 @@ class ColorsetsView {
     if (ccView.isOk()) {
       const newcolorPalette = {
         name: ccView.name(),
-        background: '#000',
-        background2: '#fff',
+        background: '#000000',
+        background2: '#ffffff',
         colors: (() => {
           const colors = [];
           for (let i = 0; i < ccView.colorNum(); i++) {
-            colors.push('#000');
+            colors.push('#000000');
           }
           return colors;
         })(),
@@ -781,18 +803,22 @@ class ColorsetsView {
     this.selectColor(colorIndex);
   }
 
-  openColorPicker($color) {
-    let color = $color.style.backgroundColor.replace(/[^\d,]/g, '');
-    const cs = color.split(',');
-    color = "#"
-      + ('0' + (+cs[0]).toString(16)).slice(-2)
-      + ('0' + (+cs[1]).toString(16)).slice(-2)
-      + ('0' + (+cs[2]).toString(16)).slice(-2);
-
-    this.$colorPicker.value = color;
+  openColorPicker($color, palette) {
+    debugger;
+    this.$colorPicker.value = $color.dataset.color;
     this.$colorPicker.click();
     this.$colorPicker.onchange = () => {
       $color.style.background = this.$colorPicker.value;
+      if ($color.dataset.no === '-1') {
+        palette.background = this.$colorPicker.value;
+      } else if ($color.dataset.no === '-2') {
+        palette.background2 = this.$colorPicker.value;
+      } else {
+        palette.colors[$color.dataset.no] = this.$colorPicker.value;
+      }
+
+      $color.dataset.color = this.$colorPicker.value;
+      eventer.emit('refresh');
     }
   }
 
