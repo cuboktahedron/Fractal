@@ -10,7 +10,8 @@ const colorPalettes = [
       "#ff949d", "#e80200", "#7a243d", "#000000",
       "#195648", "#6a8927", "#16ed75", "#32c1c3",
       "#057fc1", "#6e4e23", "#c98f4c", "#efe305",
-    ]
+    ],
+    preset: true
   }, {
     name: 'grayscale(16)',
     background: '#000',
@@ -20,7 +21,8 @@ const colorPalettes = [
       "#444", "#555", "#666", "#777",
       "#888", "#999", "#aaa", "#bbb",
       "#ccc", "#ddd", "#eee", "#fff",
-    ]
+    ],
+    preset: true
   }, {
     name: 'grayscale(256)',
     background: '#000',
@@ -90,7 +92,8 @@ const colorPalettes = [
       "#f4f4f4", "#f5f5f5", "#f6f6f6", "#f7f7f7",
       "#f8f8f8", "#f9f9f9", "#fafafa", "#fbfbfb",
       "#fcfcfc", "#fdfdfd", "#fefefe", "#ffffff",
-    ]
+    ],
+    preset: true
   }, {
     name: 'black-blue(256)',
     background: '#000',
@@ -160,7 +163,8 @@ const colorPalettes = [
       "#0000f4", "#0000f5", "#0000f6", "#0000f7",
       "#0000f8", "#0000f9", "#0000fa", "#0000fb",
       "#0000fc", "#0000fd", "#0000fe", "#0000ff",
-    ]
+    ],
+    preset: true
   }, {
     name: 'black-green(256)',
     background: '#000',
@@ -230,7 +234,8 @@ const colorPalettes = [
       "#00f400","#00f500","#00f600","#00f700",
       "#00f800","#00f900","#00fa00","#00fb00",
       "#00fc00","#00fd00","#00fe00","#00ff00",
-    ]
+    ],
+    preset: true
   }, {
     name: 'black-red(256)',
     background: '#000',
@@ -300,7 +305,8 @@ const colorPalettes = [
       "#f40000","#f50000","#f60000","#f70000",
       "#f80000","#f90000","#fa0000","#fb0000",
       "#fc0000","#fd0000","#fe0000","#ff0000",
-    ]
+    ],
+    preset: true
   }, {
     name: 'binary',
     background: '#000',
@@ -308,7 +314,8 @@ const colorPalettes = [
     colors: [
       "#000",
       "#fff",
-    ]
+    ],
+    preset: true
   }, {
     name: 'cycle(12)',
     background: '#000',
@@ -326,7 +333,8 @@ const colorPalettes = [
       "#920783",
       "#e4007f",
       "#e5004f",
-    ]
+    ],
+    preset: true
   }, {
     name: 'cycle(24)',
     background: '#000',
@@ -356,6 +364,7 @@ const colorPalettes = [
       '#E5006A',
       '#E5004F',
       '#E60033',
-    ]
+    ],
+    preset: true
   }
 ];

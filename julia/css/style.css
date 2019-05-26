@@ -121,6 +121,10 @@ body {
     width: 32px;
   }
 
+  #colorsets .buttons {
+    margin-bottom: 4px;
+  }
+
   #ordinal-colors .ordinal-colors-row {
     display: table-row;
   }

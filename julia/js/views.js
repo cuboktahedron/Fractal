@@ -649,6 +649,7 @@ class ColorsetsView {
     this.$ordinalColors = document.getElementById('ordinal-colors');
     this.$customColorset = document.getElementById('custom-colorset');
     this.$colorPicker = document.getElementById('color-picker');
+    this.$opDelColor = document.getElementById('op-del-color');
 
     this._customColorPalettes = [];
     this._colorPalettes = [];
@@ -659,6 +660,8 @@ class ColorsetsView {
 
     this.$colors.onchange = () => this.changeColor(this.$colors.value);
     this.$colors.onfocus = () => { this.$colors.dataset.prevIndex = this.$colors.value; }
+    this.$opDelColor.onclick = () => this.delColor();
+
     eventer.on('selectColor', (colorIndex) => this.selectColor(colorIndex));
     eventer.on('selectColorByName', (name) => this.selectColorByName(name));
     eventer.emit('selectColor', params.ci);
@@ -723,8 +726,10 @@ class ColorsetsView {
       this.$ordinalColors.appendChild(colorRow);
     }
 
+    this.$opDelColor.disabled = palette.preset;
+
     eventer.emit('changeColor', {
-      colorPalette: this._colorPalettes[colorIndex],
+      colorPalette: palette,
       colorIndex: colorIndex
     });
   }
@@ -745,7 +750,8 @@ class ColorsetsView {
             colors.push('#000');
           }
           return colors;
-        })()
+        })(),
+        preset: false,
       };
 
       this._customColorPalettes.push(newcolorPalette);
@@ -754,7 +760,7 @@ class ColorsetsView {
     } else {
       this.$colors.selectedIndex = this.$colors.dataset.prevIndex;
     }
-}
+  }
 
   selectColor(colorIndex) {
     this.$colors.selectedIndex = colorIndex
@@ -780,6 +786,17 @@ class ColorsetsView {
     this.$colorPicker.onchange = () => {
       $color.style.background = this.$colorPicker.value;
     }
+  }
+
+  delColor() {
+    const customColorIndex = +this.$colors.selectedIndex - colorPalettes.length;
+    if (customColorIndex < 0) {
+      return;
+    }
+
+    this._customColorPalettes.splice(customColorIndex, 1);
+    this._initColorSelection();
+    eventer.emit('selectColor', customColorIndex + colorPalettes.length - 1);
   }
 };
 
