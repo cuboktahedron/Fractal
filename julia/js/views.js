@@ -45,8 +45,8 @@ class CanvasView {
 
     this._addMouseEvent();
 
-    eventer.on('changeColor', (colorIndex) => {
-      this._colorIndex = colorIndex;
+    eventer.on('changeColor', (colorPallet) => {
+      this._colorPallet = colorPallet;
       eventer.emit('refresh');
     });
 
@@ -74,7 +74,7 @@ class CanvasView {
         resolution: this._paramView.resolution(),
         maxRepeat: this._paramView.maxRepeat(),
         skip: this._paramView.skip(),
-        colorIndex: this._colorIndex,
+        colorPallet: this._colorPallet,
       };
 
       eventer.emit('addSnapshot', data);
@@ -221,7 +221,7 @@ class CanvasView {
       resolution: resolution,
       maxRepeat: this._paramView.maxRepeat(),
       skip: this._paramView.skip(),
-      colorIndex: this._colorIndex,
+      colorPallet: this._colorPallet,
       rough: !!rough,
     };
 
@@ -297,13 +297,9 @@ class CanvasView {
       }
     }
   }
-
-  _colorset() {
-    return colorPalettes[this._colorIndex].colors;
-  }
   
   _clear() {
-    this._backCtx.fillStyle = colorPalettes[this._colorIndex].background;
+    this._backCtx.fillStyle = this._colorPallet.background;
     this._backCtx.fillRect(0, 0, this.$backCanvas.width, this.$backCanvas.height);
   }
 
@@ -349,7 +345,7 @@ class CanvasView {
   _draw2(julia, y, resolution) {
     const maxRepeat = this._paramView.maxRepeat();
     const skip = this._paramView.skip();
-    const colors = this._colorset();
+    const colors = this._colorPallet.colors;
     const block = this.$canvas.width / resolution;
 
     for (let x = 0; x < julia.length; x++) {
@@ -357,7 +353,7 @@ class CanvasView {
       if (n < skip) {
         continue;
       } else if (n == maxRepeat) {
-        this._backCtx.fillStyle = colorPalettes[this._colorIndex].background2;
+        this._backCtx.fillStyle = this._colorPalette.background2;
       } else {
         this._backCtx.fillStyle = colors[n % colors.length];
       }
@@ -611,7 +607,10 @@ class OperationView {
   }
 
   init() {
-    eventer.on('changeColor', (colorIndex) => this._colorIndex = colorIndex);
+    eventer.on('changeColor', (colorPallet, colorIndex) => {
+      this._colorPallet = colorPallet;
+      this._colorIndex = colorIndex;
+    });
 
     this.$fullScreen.onclick = () => eventer.emit('beCanvasFullScreen');
     this.$save.onclick = () => eventer.emit('saveCanvas');
@@ -650,9 +649,24 @@ class ColorsetsView {
     this.$ordinalColors = document.getElementById('ordinal-colors');
     this.$customColorset = document.getElementById('custom-colorset');
     this.$colorPicker = document.getElementById('color-picker');
+
+    this._customColorPalettes = [];
+    this._colorPalettes = [];
   }
 
   init(params) {
+    this._initColorSelection();
+
+    this.$colors.onchange = () => this.changeColor(this.$colors.value);
+    this.$colors.onfocus = () => { this.$colors.dataset.prevIndex = this.$colors.value; }
+    eventer.on('selectColor', (colorIndex) => this.selectColor(colorIndex));
+    eventer.on('selectColorByName', (name) => this.selectColorByName(name));
+    eventer.emit('selectColor', params.ci);
+  }
+
+  _initColorSelection() {
+    this.$colors.innerHTML = '';
+
     for(let i = 0; i < colorPalettes.length; i++) {
       const option = document.createElement('option');
       option.innerText = colorPalettes[i].name;
@@ -661,22 +675,31 @@ class ColorsetsView {
       this.$colors.appendChild(option);
     }
 
+    for(let i = 0; i < this._customColorPalettes.length; i++) {
+      const option = document.createElement('option');
+      option.innerText = this._customColorPalettes[i].name;
+      option.value = colorPalettes.length + i;
+      this.$colors.appendChild(option);
+    }
+
     const customOption = document.createElement('option');
-    customOption.value = colorPalettes.length;
+    customOption.value = colorPalettes.length + this._customColorPalettes.length;
     customOption.innerText = '<< new >>';
     this.$colors.appendChild(customOption);
 
-    this.$colors.onchange = () => this.changeColor(this.$colors.value);
-
-    eventer.on('selectColor', (colorIndex) => this.selectColor(colorIndex));
-    eventer.emit('selectColor', params.ci);
+    this._colorPalettes = []
+      .concat(JSON.parse(JSON.stringify(colorPalettes)))
+      .concat(JSON.parse(JSON.stringify(this._customColorPalettes)));
   }
 
   async changeColor(colorIndex) {
-    // TODO: implement custom colorset
-    // const ccView = await this.openCustomColorset();
+    if (+colorIndex === this._colorPalettes.length) {
+      await this.openCustomColorset(colorIndex);
+      return;
+    }
 
-    const palette = colorPalettes[colorIndex];
+    this.$colors.dataset.prevIndex = this.$colors.value;
+    const palette = this._colorPalettes[colorIndex];
     this.$backgroundColor.style.backgroundColor = palette.background;
     this.$finalColor.style.backgroundColor = palette.background2;
 
@@ -700,16 +723,35 @@ class ColorsetsView {
       this.$ordinalColors.appendChild(colorRow);
     }
 
-    eventer.emit('changeColor', this.$colors.value);
+    eventer.emit('changeColor', this._colorPalettes[colorIndex], colorIndex);
   }
 
-  async openCustomColorset() {
+  async openCustomColorset(colorIndex) {
     const ccView = new CustomColorsetView();
     ccView.init();
     await ccView.show();
 
-    return ccView;
-  }
+    if (ccView.isOk()) {
+      const newColorPallet = {
+        name: ccView.name(),
+        background: '#000',
+        background2: '#fff',
+        colors: (() => {
+          const colors = [];
+          for (let i = 0; i < ccView.colorNum(); i++) {
+            colors.push('#000');
+          }
+          return colors;
+        })()
+      };
+
+      this._customColorPalettes.push(newColorPallet);
+      this._initColorSelection();
+      eventer.emit('selectColor', colorIndex);
+    } else {
+      this.$colors.selectedIndex = this.$colors.dataset.prevIndex;
+    }
+}
 
   selectColor(colorIndex) {
     this.$colors.selectedIndex = colorIndex
@@ -718,6 +760,16 @@ class ColorsetsView {
     }
 
     this.changeColor(this.$colors.selectedIndex);
+  }
+
+  selectColorByName(name) {
+    let colorIndex = 0;
+    colorIndex = this._colorPalettes.map(c => c.name).indexOf(name);
+    if (colorIndex === -1) {
+      colorIndex = 0;
+    }
+
+    this.selectColor(colorIndex);
   }
 
   openColorPicker($color) {
@@ -789,7 +841,7 @@ class SnapshotsView {
         this._paramView.maxRepeat(params.maxRepeat);
         this._paramView.skip(params.skip);
 
-        eventer.emit('selectColor', params.colorIndex);
+        eventer.emit('selectColorByName', params.colorPallet.name);
         eventer.emit('refresh');
       };
     }
@@ -798,22 +850,30 @@ class SnapshotsView {
 
 class CustomColorsetView {
   constructor() {
+    this.$form = document.querySelector('#custom-colorset form');
     this.$customColorset = document.getElementById('custom-colorset');
     this.$ok = document.querySelector('#custom-colorset .ok');
     this.$cancel = document.querySelector('#custom-colorset .cancel');
     this.$colorNum = document.querySelector('#custom-colorset .color-num');
+    this.$name = document.querySelector('#custom-colorset .name');
   }
 
   init() {
     this._isOk = false;
     this._colorNum = 16;
+    this._name = '';
     this.$colorNum.value = this._colorNum;
+    this.$name.value = this._name;
+
+    this.$form.onsubmit = () => { return false; }
   }
 
   async show() {
     this.$customColorset.style.display = 'block';
-    this.$ok.onclick = () => this.ok();
+    this.$form.onsubmit = () => { this.ok(); return false; };
     this.$cancel.onclick = () => this.cancel();
+
+    this.$name.focus();
 
     while (this.isShowing()) {
       await Process.sleep(10);
@@ -832,13 +892,23 @@ class CustomColorsetView {
     return this._colorNum;
   }
 
+  name() {
+    return this._name;
+  }
+
   isShowing() {
     return this.$customColorset.style.display !== 'none';
   }
 
   ok() {
+    if (this.$name.value.trim() === '') {
+      return;
+    }
+
     this.hide();
     this._isOk = true;
+    this._colorNum = this.$colorNum.value;
+    this._name = this.$name.value;
   }
 
   cancel() {
