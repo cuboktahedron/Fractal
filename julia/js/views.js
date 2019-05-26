@@ -45,8 +45,8 @@ class CanvasView {
 
     this._addMouseEvent();
 
-    eventer.on('changeColor', (colorPallet) => {
-      this._colorPallet = colorPallet;
+    eventer.on('changeColor', (data) => {
+      this._colorPalette = data.colorPalette;
       eventer.emit('refresh');
     });
 
@@ -74,7 +74,7 @@ class CanvasView {
         resolution: this._paramView.resolution(),
         maxRepeat: this._paramView.maxRepeat(),
         skip: this._paramView.skip(),
-        colorPallet: this._colorPallet,
+        colorPalette: this._colorPalette,
       };
 
       eventer.emit('addSnapshot', data);
@@ -221,7 +221,7 @@ class CanvasView {
       resolution: resolution,
       maxRepeat: this._paramView.maxRepeat(),
       skip: this._paramView.skip(),
-      colorPallet: this._colorPallet,
+      colorPalette: this._colorPalette,
       rough: !!rough,
     };
 
@@ -299,7 +299,7 @@ class CanvasView {
   }
   
   _clear() {
-    this._backCtx.fillStyle = this._colorPallet.background;
+    this._backCtx.fillStyle = this._colorPalette.background;
     this._backCtx.fillRect(0, 0, this.$backCanvas.width, this.$backCanvas.height);
   }
 
@@ -345,7 +345,7 @@ class CanvasView {
   _draw2(julia, y, resolution) {
     const maxRepeat = this._paramView.maxRepeat();
     const skip = this._paramView.skip();
-    const colors = this._colorPallet.colors;
+    const colors = this._colorPalette.colors;
     const block = this.$canvas.width / resolution;
 
     for (let x = 0; x < julia.length; x++) {
@@ -607,9 +607,9 @@ class OperationView {
   }
 
   init() {
-    eventer.on('changeColor', (colorPallet, colorIndex) => {
-      this._colorPallet = colorPallet;
-      this._colorIndex = colorIndex;
+    eventer.on('changeColor', (data) => {
+      this._colorPalette = data.colorPalette;
+      this._colorIndex = data.colorIndex;
     });
 
     this.$fullScreen.onclick = () => eventer.emit('beCanvasFullScreen');
@@ -723,7 +723,10 @@ class ColorsetsView {
       this.$ordinalColors.appendChild(colorRow);
     }
 
-    eventer.emit('changeColor', this._colorPalettes[colorIndex], colorIndex);
+    eventer.emit('changeColor', {
+      colorPalette: this._colorPalettes[colorIndex],
+      colorIndex: colorIndex
+    });
   }
 
   async openCustomColorset(colorIndex) {
@@ -732,7 +735,7 @@ class ColorsetsView {
     await ccView.show();
 
     if (ccView.isOk()) {
-      const newColorPallet = {
+      const newcolorPalette = {
         name: ccView.name(),
         background: '#000',
         background2: '#fff',
@@ -745,7 +748,7 @@ class ColorsetsView {
         })()
       };
 
-      this._customColorPalettes.push(newColorPallet);
+      this._customColorPalettes.push(newcolorPalette);
       this._initColorSelection();
       eventer.emit('selectColor', colorIndex);
     } else {
@@ -841,7 +844,7 @@ class SnapshotsView {
         this._paramView.maxRepeat(params.maxRepeat);
         this._paramView.skip(params.skip);
 
-        eventer.emit('selectColorByName', params.colorPallet.name);
+        eventer.emit('selectColorByName', params.colorPalette.name);
         eventer.emit('refresh');
       };
     }
