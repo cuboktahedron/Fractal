@@ -782,6 +782,14 @@ class ColorsetsView {
   }
 
   openColorPicker($color) {
+    let color = $color.style.backgroundColor.replace(/[^\d,]/g, '');
+    const cs = color.split(',');
+    color = "#"
+      + ('0' + (+cs[0]).toString(16)).slice(-2)
+      + ('0' + (+cs[1]).toString(16)).slice(-2)
+      + ('0' + (+cs[2]).toString(16)).slice(-2);
+
+    this.$colorPicker.value = color;
     this.$colorPicker.click();
     this.$colorPicker.onchange = () => {
       $color.style.background = this.$colorPicker.value;
