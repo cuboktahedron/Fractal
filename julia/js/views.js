@@ -753,18 +753,107 @@ class ColorsetsView {
         if (!palette.preset) {
           color.onclick = () => this.openColorPicker(color, palette);
         }
-
+        color.ondragstart = (e) => e.preventDefault();
         colorRow.appendChild(color);
       }
 
       this.$ordinalColors.appendChild(colorRow);
     }
 
+    if (!palette.preset) {
+      this._addGradationFunc();
+    }
+    
     this.$opDelColor.disabled = palette.preset;
 
     eventer.emit('changeColor', {
       colorPalette: palette,
       colorIndex: colorIndex
+    });
+  }
+
+  _addGradationFunc() {
+    const $colors = this.$ordinalColors.querySelectorAll('.ordinal-color');
+    let $beginColor = null;
+
+    this.$ordinalColors.onmouseleave = () => {
+      if ($beginColor == null) {
+        return;
+      }
+
+      $colors.forEach(color => color.classList.remove('select'));
+    }
+
+    this.$ordinalColors.onmousedown = (e) => {
+      $beginColor = e.target;
+      $beginColor.classList.add('select');
+    }
+
+    this.$ordinalColors.onmouseleave = (e) => {
+      if ($beginColor == null) {
+        return;
+      }
+
+      $colors.forEach($col => $col.classList.remove('select'));
+      $beginColor = null;
+    }
+
+    $colors.forEach(($color) => {
+      $color.onmouseenter = (e) => { 
+        if ($beginColor == null) {
+          return;
+        }
+
+        let begin = +$beginColor.dataset.no;
+        let end = +e.target.dataset.no;
+        if (begin > end) {
+          [begin, end] = [end, begin];
+        }
+
+        $colors.forEach($col => {
+          $col.classList.remove('select');
+          if (begin <= $col.dataset.no && $col.dataset.no <= end) {
+            $col.classList.add('select');
+          }
+        });
+      };
+
+      $color.onmouseup = (e) => {
+        if ($beginColor == null) {
+          return;
+        } 
+
+        let begin = +$beginColor.dataset.no;
+        let end = +e.target.dataset.no;
+        if (begin > end) {
+          [begin, end] = [end, begin];
+        }
+
+        $colors.forEach($col => {
+          $col.classList.remove('select');
+        });
+
+        const palette = this._colorPalettes[this.$colors.selectedIndex];
+        const beginRgb = new Rgb($colors[begin].dataset.color);
+        const endRgb = new Rgb($colors[end].dataset.color);
+        const diffRgb = new Rgb(endRgb.r - beginRgb.r, endRgb.g - beginRgb.g, endRgb.b - beginRgb.b);
+        const diff = end - begin;
+        for (let i = 1; i < diff; i++) {
+          const r = beginRgb.r + Math.round((diffRgb.r / diff) * i);
+          const g = beginRgb.g + Math.round((diffRgb.g / diff) * i);
+          const b = beginRgb.b + Math.round((diffRgb.b / diff) * i);
+          const newRgb = new Rgb(r, g, b);
+          const $color = $colors[i + begin];
+          $color.dataset.color = newRgb.colorCode;
+          $color.style.backgroundColor = newRgb.colorCode;
+          palette.colors[i + begin] = newRgb.colorCode;
+        }
+
+        $beginColor = null;
+
+        this._saveToLocalStore();
+        eventer.emit('refresh');
+      };
     });
   }
 

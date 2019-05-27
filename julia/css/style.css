@@ -138,6 +138,10 @@ body {
     width: 16px;
   }
 
+  #ordinal-colors .ordinal-color.select {
+    border: dotted 4px white;
+  }
+
   #sel-colors option.preset {
     background: pink;
   }
