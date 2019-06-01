@@ -655,6 +655,7 @@ class ColorsetsView {
     this.$colorPicker = document.getElementById('color-picker');
     this.$opDelColor = document.getElementById('op-del-color');
     this.$opEditColor = document.getElementById('op-edit-color');
+    this.$colorInfo = document.getElementById('color-info');
 
     this._colorPalettes = [];
   }
@@ -733,6 +734,8 @@ class ColorsetsView {
     backgroundColor.style.backgroundColor = palette.background;
     backgroundColor.dataset.color = palette.background;
     backgroundColor.dataset.no = -1;
+    backgroundColor.onmouseover = () => this._showColorInfo(backgroundColor);
+    backgroundColor.onmouseleave = () => this._clearColorInfo();
     if (!palette.preset) {
       backgroundColor.onclick = () => this.openColorPicker(backgroundColor, palette);
     }
@@ -743,6 +746,8 @@ class ColorsetsView {
     finalColor.style.backgroundColor = palette.background2;
     finalColor.dataset.color = palette.background2;
     finalColor.dataset.no = -2;
+    finalColor.onmouseover = () => this._showColorInfo(finalColor);
+    finalColor.onmouseleave = () => this._clearColorInfo();
     if (!palette.preset) {
       finalColor.onclick = () => this.openColorPicker(finalColor, palette);
     }
@@ -767,6 +772,8 @@ class ColorsetsView {
         color.style.backgroundColor = palette.colors[no];
         color.dataset.color = palette.colors[no];
         color.dataset.no = no;
+        color.onmouseover = () => this._showColorInfo(color);
+        color.onmouseleave = () => this._clearColorInfo();
         if (!palette.preset) {
           color.onclick = () => this.openColorPicker(color, palette);
         }
@@ -788,6 +795,16 @@ class ColorsetsView {
       colorPalette: palette,
       colorIndex: colorIndex
     });
+  }
+
+  _showColorInfo(color) {
+    const rgb = new Rgb(color.dataset.color);
+    const text = 'R:' + rgb.r + ' G:' + rgb.g + ' B:' + rgb.b; 
+    this.$colorInfo.innerText = text;
+  }
+
+  _clearColorInfo() {
+    this.$colorInfo.innerText = '';
   }
 
   _addGradationFunc() {

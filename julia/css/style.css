@@ -106,10 +106,26 @@ body {
     display: none;
   }
 
+  #special-colors {
+    float: left;
+  }
+
+  #ordinal-colors {
+    clear: both;
+  }
+
   #special-colors, #ordinal-colors {
     border-collapse: collapse;
     display: table;
     margin-bottom: 4px;
+  }
+
+  #color-info {
+    float: left;
+    height: 32px;
+    line-height: 32px;
+    margin-left: 4px;
+    width: 200px;
   }
 
   #background-color, #final-color {
