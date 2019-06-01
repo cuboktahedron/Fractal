@@ -142,20 +142,22 @@ body {
     margin-bottom: 4px;
   }
 
-  #color-types {
-    margin-bottom: 4px;
-  }
-
   #color-type {
+    display: block;
+    margin-bottom: 4px;
+    float: left;
     width: 75px;
   }
 
-  #fix-checks-rgb {
+  #color-type-checks-rgb,
+  #color-type-checks-hsv {
+    display: none;
     float: left;
   }
 
-  #fix-checks-hsv {
-    float: left;
+  #color-type-checks-rgb.active,
+  #color-type-checks-hsv.active {
+    display: block;
   }
 
   #ordinal-colors .ordinal-colors-row {

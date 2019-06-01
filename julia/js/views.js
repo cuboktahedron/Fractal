@@ -657,7 +657,15 @@ class ColorsetsView {
     this.$opEditColor = document.getElementById('op-edit-color');
     this.$colorInfo = document.getElementById('color-info');
     this.$colorType = document.getElementById('color-type');
-
+    this.$colorType = document.getElementById('color-type');
+    this.$ctcRgb = document.getElementById('color-type-checks-rgb');
+    this.$ctcHsv = document.getElementById('color-type-checks-hsv');
+    this.$chkRgbR = document.getElementById('chk-rgb-r');
+    this.$chkRgbG = document.getElementById('chk-rgb-g');
+    this.$chkRgbB = document.getElementById('chk-rgb-b');
+    this.$chkHsvH = document.getElementById('chk-hsv-h');
+    this.$chkHsvS = document.getElementById('chk-hsv-s');
+    this.$chkHsvV = document.getElementById('chk-hsv-v');
     this._colorPalettes = [];
   }
 
@@ -675,6 +683,7 @@ class ColorsetsView {
     this.$colors.onfocus = () => { this.$colors.dataset.prevIndex = this.$colors.value; }
     this.$opDelColor.onclick = () => this.delColor();
     this.$opEditColor.onclick = () => this.editColor();
+    this.$colorType.onchange = () => this._refreshColorType();
 
     eventer.on('selectColor', (colorIndex) => this.selectColor(colorIndex));
     eventer.on('selectColorByName', (name) => this.selectColorByName(name));
@@ -789,6 +798,7 @@ class ColorsetsView {
       this._addGradationFunc();
     }
     
+    this._refreshColorType();
     this.$opDelColor.disabled = palette.preset;
     this.$opEditColor.disabled = palette.preset;
 
@@ -798,6 +808,20 @@ class ColorsetsView {
     });
   }
 
+  _refreshColorType() {
+    const palette = this._colorPalettes[this.$colors.selectedIndex];
+
+    this.$ctcRgb.classList.remove('active');
+    this.$ctcHsv.classList.remove('active');
+    if (!palette.preset) {
+      if (this.$colorType.value === 'rgb') {
+        this.$ctcRgb.classList.add('active');
+      } else {
+        this.$ctcHsv.classList.add('active');
+      }
+    }
+  }
+  
   _showColorInfo(color) {
     const pattern = this.$colorType.value;
     const rgb = new Rgb(color.dataset.color);
@@ -805,7 +829,7 @@ class ColorsetsView {
       this.$colorInfo.innerText = 'R:' + rgb.r + ' G:' + rgb.g + ' B:' + rgb.b;
     } else {
       const hsv = Hsv.createFromRgb(rgb);
-      this.$colorInfo.innerText = 'H:' +hsv.h + ' S:' + hsv.s + ' V:' + hsv.v;
+      this.$colorInfo.innerText = 'H:' +hsv.h + '° S:' + hsv.s + '% V:' + hsv.v + '%';
     }
   }
 
@@ -875,19 +899,42 @@ class ColorsetsView {
         });
 
         const palette = this._colorPalettes[this.$colors.selectedIndex];
-        const beginRgb = new Rgb($colors[begin].dataset.color);
-        const endRgb = new Rgb($colors[end].dataset.color);
-        const diffRgb = new Rgb(endRgb.r - beginRgb.r, endRgb.g - beginRgb.g, endRgb.b - beginRgb.b);
-        const diff = end - begin;
-        for (let i = 1; i < diff; i++) {
-          const r = beginRgb.r + Math.round((diffRgb.r / diff) * i);
-          const g = beginRgb.g + Math.round((diffRgb.g / diff) * i);
-          const b = beginRgb.b + Math.round((diffRgb.b / diff) * i);
-          const newRgb = new Rgb(r, g, b);
-          const $color = $colors[i + begin];
-          $color.dataset.color = newRgb.colorCode;
-          $color.style.backgroundColor = newRgb.colorCode;
-          palette.colors[i + begin] = newRgb.colorCode;
+        if (this.$colorType.value === 'rgb') {
+          const beginRgb = new Rgb($colors[begin].dataset.color);
+          const endRgb = new Rgb($colors[end].dataset.color);
+          const diffR = this.$chkRgbR.checked ? 0 : endRgb.r - beginRgb.r;
+          const diffG = this.$chkRgbG.checked ? 0 : endRgb.g - beginRgb.g;
+          const diffB = this.$chkRgbB.checked ? 0 : endRgb.b - beginRgb.b;
+
+          const diff = end - begin;
+          for (let i = 1; i <= diff; i++) {
+            const r = beginRgb.r + Math.round((diffR / diff) * i);
+            const g = beginRgb.g + Math.round((diffG / diff) * i);
+            const b = beginRgb.b + Math.round((diffB / diff) * i);
+            const newRgb = new Rgb(r, g, b);
+            const $color = $colors[i + begin];
+            $color.dataset.color = newRgb.colorCode;
+            $color.style.backgroundColor = newRgb.colorCode;
+            palette.colors[i + begin] = newRgb.colorCode;
+          }
+        } else if (this.$colorType.value === 'hsv') {
+          const beginHsv = Hsv.createFromRgb(new Rgb($colors[begin].dataset.color));
+          const endHsv = Hsv.createFromRgb(new Rgb($colors[end].dataset.color));
+          const diffH = this.$chkHsvH.checked ? 0 : endHsv.h - beginHsv.h;
+          const diffS = this.$chkHsvS.checked ? 0 : endHsv.s - beginHsv.s;
+          const diffV = this.$chkHsvV.checked ? 0 : endHsv.v - beginHsv.v;
+
+          const diff = end - begin;
+          for (let i = 1; i <= diff; i++) {
+            const h = beginHsv.h + Math.round((diffH / diff) * i);
+            const s = beginHsv.s + Math.round((diffS / diff) * i);
+            const v = beginHsv.v + Math.round((diffV / diff) * i);
+            const newRgb = new Hsv(h, s, v).rgb;
+            const $color = $colors[i + begin];
+            $color.dataset.color = newRgb.colorCode;
+            $color.style.backgroundColor = newRgb.colorCode;
+            palette.colors[i + begin] = newRgb.colorCode;
+          }
         }
 
         $beginColor = null;
