@@ -654,6 +654,7 @@ class ColorsetsView {
     this.$customColorset = document.getElementById('custom-colorset');
     this.$colorPicker = document.getElementById('color-picker');
     this.$opDelColor = document.getElementById('op-del-color');
+    this.$opEditColor = document.getElementById('op-edit-color');
 
     this._colorPalettes = [];
   }
@@ -671,6 +672,7 @@ class ColorsetsView {
     this.$colors.onchange = () => this.changeColor(this.$colors.value);
     this.$colors.onfocus = () => { this.$colors.dataset.prevIndex = this.$colors.value; }
     this.$opDelColor.onclick = () => this.delColor();
+    this.$opEditColor.onclick = () => this.editColor();
 
     eventer.on('selectColor', (colorIndex) => this.selectColor(colorIndex));
     eventer.on('selectColorByName', (name) => this.selectColorByName(name));
@@ -775,6 +777,7 @@ class ColorsetsView {
     }
     
     this.$opDelColor.disabled = palette.preset;
+    this.$opEditColor.disabled = palette.preset;
 
     eventer.emit('changeColor', {
       colorPalette: palette,
@@ -898,6 +901,33 @@ class ColorsetsView {
     }
   }
 
+  async openCustomColorsetForEdit(palette) {
+    const ccView = new CustomColorsetView();
+    ccView.init(palette);
+
+    const colorNames = this._colorPalettes
+      .map(c => c.name)
+      .filter(name => name !== palette.name);
+    await ccView.show(colorNames);
+
+    if (ccView.isOk()) {
+      palette.name = ccView.name();
+      const beforeColorNum = palette.colors.length;
+      if (beforeColorNum > ccView.colorNum()) {
+        palette.colors.splice(ccView.colorNum());
+      } else {
+        for (let i = beforeColorNum; i < ccView.colorNum(); i++) {
+          palette.colors.push('#000000');
+        }
+      };
+
+      const colorIndex = +this.$colors.selectedIndex
+      this._initColorSelection();
+      this._saveToLocalStore();
+      eventer.emit('selectColor', colorIndex);
+    }
+  }
+
   selectColor(colorIndex) {
     this.$colors.selectedIndex = colorIndex
     if (this.$colors.selectedIndex < 0) {
@@ -946,6 +976,16 @@ class ColorsetsView {
     this._saveToLocalStore();
     this._initColorSelection();
     eventer.emit('selectColor', colorIndex - 1);
+  }
+
+  async editColor() {
+    const colorIndex = +this.$colors.selectedIndex;
+    if (colorIndex < 0) {
+      return;
+    }
+
+    const palette = this._colorPalettes[colorIndex];
+    await this.openCustomColorsetForEdit(palette);
   }
 };
 
@@ -1027,12 +1067,15 @@ class CustomColorsetView {
     this.$name = document.querySelector('#custom-colorset .name');
   }
 
-  init() {
+  init(palette) {
+    if (palette == null) {
+      this.$colorNum.value = 16;
+      this.$name.value = '';
+    } else {
+      this.$colorNum.value = palette.colors.length;
+      this.$name.value = palette.name
+    }
     this._isOk = false;
-    this._colorNum = 16;
-    this._name = '';
-    this.$colorNum.value = this._colorNum;
-    this.$name.value = this._name;
 
     this.$form.oninput = () => { this._validateAll(); return true; }
     this.$form.onsubmit = () => false;
