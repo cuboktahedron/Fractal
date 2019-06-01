@@ -870,7 +870,9 @@ class ColorsetsView {
   async openCustomColorset(colorIndex) {
     const ccView = new CustomColorsetView();
     ccView.init();
-    await ccView.show();
+
+    const colorNames = this._colorPalettes.map(c => c.name);
+    await ccView.show(colorNames);
 
     if (ccView.isOk()) {
       const newcolorPalette = {
@@ -1032,13 +1034,34 @@ class CustomColorsetView {
     this.$colorNum.value = this._colorNum;
     this.$name.value = this._name;
 
-    this.$form.onsubmit = () => { return false; }
+    this.$form.oninput = () => { this._validateAll(); return true; }
+    this.$form.onsubmit = () => false;
   }
 
-  async show() {
+  _validateAll() {
+    return this._validateName();
+  }
+
+  _validateName() {
+    if (this.$name.value.trim() === '') {
+      this.$name.setCustomValidity('Required.');
+      return false;
+    }
+
+    if (this._colorNames.indexOf(this.$name.value.trim()) !== -1) {
+      this.$name.setCustomValidity('This name is already used.');
+      return false;
+    }
+
+    this.$name.setCustomValidity('');
+    return true;
+  }
+
+  async show(colorNames) {
     this.$customColorset.style.display = 'block';
     this.$form.onsubmit = () => { this.ok(); return false; };
     this.$cancel.onclick = () => this.cancel();
+    this._colorNames = colorNames;
 
     this.$name.focus();
 
@@ -1068,7 +1091,7 @@ class CustomColorsetView {
   }
 
   ok() {
-    if (this.$name.value.trim() === '') {
+    if (!this._validateAll()) {
       return;
     }
 
