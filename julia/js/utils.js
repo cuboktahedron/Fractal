@@ -1,19 +1,25 @@
 'use strict';
 
-class Complex {
+class MutableComplex {
   constructor(re, im) {
     this.re = re;
     this.im = im;
   }
-  
+
   add(c) {
-    return new Complex(this.re + c.re, this.im + c.im);
+    const re = this.re + c.re;
+    const im = this.im + c.im;
+    this.re = re;
+    this.im = im;
+    return this;
   }
 
   mul(c) {
     const re = this.re * c.re - this.im * c.im;
     const im = this.re * c.im + this.im * c.re;
-    return new Complex(re, im);
+    this.re = re;
+    this.im = im;
+    return this;
   }
 
   abs() {
@@ -31,7 +37,7 @@ class Complex {
       return this.re + " - " + -this.im + "i";
     }
   }
-};
+}
 
 class Diagnosis {
   static async elapsedTime(f) {

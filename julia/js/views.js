@@ -68,8 +68,8 @@ class CanvasView {
 
       data.$canvas = this.$canvas;
       data.params = {
-        cs: new Complex(this._paramView.csre(), this._paramView.csim()),
-        center: new Complex(this._paramView.centerX(), this._paramView.centerY()),
+        cs: new MutableComplex(this._paramView.csre(), this._paramView.csim()),
+        center: new MutableComplex(this._paramView.centerX(), this._paramView.centerY()),
         zoom: this._paramView.zoom(),
         resolution: this._paramView.resolution(),
         maxRepeat: this._paramView.maxRepeat(),
@@ -215,8 +215,8 @@ class CanvasView {
     }
 
     const params = {
-      cs: new Complex(this._paramView.csre(), this._paramView.csim()),
-      center: new Complex(this._paramView.centerX(), this._paramView.centerY()),
+      cs: new MutableComplex(this._paramView.csre(), this._paramView.csim()),
+      center: new MutableComplex(this._paramView.centerX(), this._paramView.centerY()),
       zoom: this._paramView.zoom(),
       resolution: resolution,
       maxRepeat: this._paramView.maxRepeat(),

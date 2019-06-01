@@ -60,7 +60,7 @@ const setup = (size, min, max, centerX, centerY) => {
   for (let y = 0; y < size; y++) {
     const mat = [];
     for (let x = 0; x < size; x++) {
-      mat.push(new Complex(xv[x], yv[y]))
+      mat.push(new MutableComplex(xv[x], yv[y]))
     }
     mat2.push(mat);
   }
