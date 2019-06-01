@@ -626,7 +626,12 @@ class OperationView {
       params.push('rs=' + this._paramView.resolution());
       params.push('rp=' + this._paramView.maxRepeat());
       params.push('sp=' + this._paramView.skip());
-      params.push('ci=' + this._colorIndex);
+
+      if (this._colorPalette.preset) {
+        params.push('ci=' + this._colorIndex);
+      } else {
+        params.push('cn=' + this._colorPalette.name);
+      }
 
       const url = location.href.replace(/\?.*/, '') + '?' + params.join('&');
       this.$txUrl.value = url;
@@ -669,7 +674,12 @@ class ColorsetsView {
 
     eventer.on('selectColor', (colorIndex) => this.selectColor(colorIndex));
     eventer.on('selectColorByName', (name) => this.selectColorByName(name));
-    eventer.emit('selectColor', params.ci);
+
+    if (!!params.cn) {
+      eventer.emit('selectColorByName', params.cn);
+    } else {
+      eventer.emit('selectColor', params.ci);
+    }
   }
 
   _initColorSelection() {
