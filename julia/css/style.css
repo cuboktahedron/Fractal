@@ -107,6 +107,7 @@ body {
   }
 
   #special-colors {
+    clear: both;
     float: left;
   }
 
@@ -137,8 +138,24 @@ body {
     width: 32px;
   }
 
-  #colorsets .buttons {
+  #colorsets-buttons {
     margin-bottom: 4px;
+  }
+
+  #color-types {
+    margin-bottom: 4px;
+  }
+
+  #color-type {
+    width: 75px;
+  }
+
+  #fix-checks-rgb {
+    float: left;
+  }
+
+  #fix-checks-hsv {
+    float: left;
   }
 
   #ordinal-colors .ordinal-colors-row {
@@ -156,6 +173,10 @@ body {
 
   #ordinal-colors .ordinal-color.select {
     border: dotted 4px white;
+  }
+
+  #sel-colors {
+    display: block;
   }
 
   #sel-colors option.preset {

@@ -656,6 +656,7 @@ class ColorsetsView {
     this.$opDelColor = document.getElementById('op-del-color');
     this.$opEditColor = document.getElementById('op-edit-color');
     this.$colorInfo = document.getElementById('color-info');
+    this.$colorType = document.getElementById('color-type');
 
     this._colorPalettes = [];
   }
@@ -798,9 +799,14 @@ class ColorsetsView {
   }
 
   _showColorInfo(color) {
+    const pattern = this.$colorType.value;
     const rgb = new Rgb(color.dataset.color);
-    const text = 'R:' + rgb.r + ' G:' + rgb.g + ' B:' + rgb.b; 
-    this.$colorInfo.innerText = text;
+    if (pattern === 'rgb') {
+      this.$colorInfo.innerText = 'R:' + rgb.r + ' G:' + rgb.g + ' B:' + rgb.b;
+    } else {
+      const hsv = Hsv.createFromRgb(rgb);
+      this.$colorInfo.innerText = 'H:' +hsv.h + ' S:' + hsv.s + ' V:' + hsv.v;
+    }
   }
 
   _clearColorInfo() {

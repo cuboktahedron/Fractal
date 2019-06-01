@@ -108,7 +108,7 @@ class Hsv {
     return new Rgb(r, g, b);
   }
 
-  static createfrmoRgb(rgb) {
+  static createFromRgb(rgb) {
     let h, s, v;
     const max = Math.max(rgb.r, rgb.g, rgb.b);
     const min = Math.min(rgb.r, rgb.g, rgb.b);
@@ -134,7 +134,11 @@ class Hsv {
       h = Math.round(60 * ((col1 - col2) / mdiff) + deg + Hsv.H_MAX_P1) % Hsv.H_MAX_P1;
     }
 
-    s = Math.round((mdiff / max) * Hsv.S_MAX);
+    if (max === 0) {
+      s = 0;
+    } else {
+      s = Math.round((mdiff / max) * Hsv.S_MAX);
+    }
     v = Math.round((max / Rgb.MAX) * Hsv.V_MAX);
 
     return new Hsv(h, s, v);
