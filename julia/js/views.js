@@ -749,6 +749,11 @@ class ColorsetsView {
     this.$specialColors.appendChild(finalColor);
 
     const cpr = 24;
+    this.$ordinalColors.remove();
+    this.$ordinalColors = document.createElement('div');
+    this.$ordinalColors.id = 'ordinal-colors';
+    this.$colorsets.insertBefore(this.$ordinalColors, this.$colorPicker);
+
     this.$ordinalColors.innerHTML = '';
     const colorNum = palette.colors.length;
     const rowMax = colorNum / cpr;
