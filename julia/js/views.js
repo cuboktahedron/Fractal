@@ -1193,6 +1193,11 @@ class CustomColorsetView {
       return false;
     }
 
+    if (!this.$name.value.trim().match(/^[a-zA-Z0-9_\-()]+$/)) {
+      this.$name.setCustomValidity('Contains invalid character.');
+      return false;
+    }
+
     if (this._colorNames.indexOf(this.$name.value.trim()) !== -1) {
       this.$name.setCustomValidity('This name is already used.');
       return false;
