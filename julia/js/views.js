@@ -831,7 +831,12 @@ class ColorsetsView {
     if (!palette.preset) {
       this._addGradationFunc();
     }
-    
+
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    if(userAgent.indexOf('edge') !== -1) {
+      this.$colorPicker.style.display = palette.preset ? 'none' : 'inline';
+    }
+
     this._refreshColorType();
     this.$opDelColor.disabled = palette.preset;
     this.$opEditColor.disabled = palette.preset;
@@ -1058,6 +1063,7 @@ class ColorsetsView {
 
   openColorPicker($color, palette) {
     this.$colorPicker.value = $color.dataset.color;
+    this.$colorPicker.focus();
     this.$colorPicker.click();
     this.$colorPicker.onchange = () => {
       $color.style.background = this.$colorPicker.value;
