@@ -91,8 +91,14 @@
 <div id="custom-colorset">
   <div id="inner-custom-colorset">
     <form>
-      <div>name: <input class="name" maxlength="16"></div>
-      <div>num: <input class="color-num" type="number" min="1" max="256" step="1" value="16"></div>
+      <div class="parameters">
+         <div class="parameter">
+           <div class="lt">name&nbsp;:&nbsp;</div><div class="rt"><input class="name" maxlength="16"></div>
+         </div>
+         <div class="parameter">
+           <div class="lt">num&nbsp;:&nbsp;</div><div class="rt"><input class="color-num" type="number" min="1" max="256" step="1" value="16"></div>
+        </div>
+      </div>
       <div>
         <button type="submit" class="ok">Ok</button>
         <button type="button" class="cancel">Cancel</button>

@@ -1,5 +1,20 @@
 @charset "utf-8";
 
+html, body,
+h1, h2, h3, h4, h5, h6,
+a, p, span,
+code, pre,
+ol, ul, li, dl, dt, dd,
+div, img
+canvas
+table, caption,
+tbody, tfoot, thead,
+tr, th, td {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
 body {
   background: black;
   color: white;
@@ -33,26 +48,27 @@ body {
   margin-bottom: 16px;
 }
 
-.parameters {
+#side .parameters {
   display: table;
   width: 100%;
   margin: 0 auto;
 }
 
-.parameter {
+#side .parameter {
   display: table-row;
 }
-.parameter input[type="text"] {
+
+#side .parameter input[type="text"] {
   margin: 4px 2px;
   width: 150px;
 }
 
-.parameter .lt {
+#side .parameter .lt {
   display: table-cell;
   text-align: right;
 }
 
-.parameter .rt {
+#side .parameter .rt {
   display: table-cell;
   text-align: left;
 }
@@ -210,12 +226,35 @@ body {
 
 #inner-custom-colorset {
   background: black;
+  border-top: solid 1px white;
+  border-bottom: solid 1px white;
   bottom: 0;
-  height: 60px;
   left: 0;
+  height: 80px;
   padding: 16px;
   position: absolute;
   margin: auto;
   right: 0;
   top: 0;
+}
+
+#inner-custom-colorset .parameters {
+  border-spacing: 2px;
+  display: table;
+  margin: 0 auto;
+  width: 300px;
+}
+
+#inner-custom-colorset .parameter {
+  display: table-row;
+}
+
+#inner-custom-colorset div.lt {
+  display: table-cell;
+  text-align: right;
+}
+
+#inner-custom-colorset div.rt {
+  display: table-cell;
+  text-align: left;
 }
