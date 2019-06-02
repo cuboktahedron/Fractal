@@ -74,6 +74,7 @@ class CanvasView {
         resolution: this._paramView.resolution(),
         maxRepeat: this._paramView.maxRepeat(),
         skip: this._paramView.skip(),
+        power: this._paramView.power(),
         colorPalette: this._colorPalette,
       };
 
@@ -86,7 +87,8 @@ class CanvasView {
         + "zm_" + this._paramView.zoom() + ' '
         + "rs_" + this._paramView.resolution() + ' '
         + "rp_" + this._paramView.maxRepeat() + ' '
-        + "sp_" + this._paramView.skip() + ' ';
+        + "sp_" + this._paramView.skip() + ' '
+        + "pw_" + this._paramView.power() + ' ';
 
       if (this.$canvas.toBlob) {
         this.$canvas.toBlob((blob) => {
@@ -221,6 +223,7 @@ class CanvasView {
       resolution: resolution,
       maxRepeat: this._paramView.maxRepeat(),
       skip: this._paramView.skip(),
+      power: this._paramView.power(),
       colorPalette: this._colorPalette,
       rough: !!rough,
     };
@@ -400,18 +403,20 @@ class ParameterView {
     this.$resolution = document.getElementById('resolution');
     this.$maxRepeat = document.getElementById('max-Repeat');
     this.$skip = document.getElementById('skip');
+    this.$power = document.getElementById('power');
   }
 
   init(params) {
     params = Object.assign({}, {
       csre: this.$csre.value,
       csim: this.$csim.value,
-      centerX: this.$centerX.value,
-      centerY: this.$centerY.value,
-      zoom: this.$zoom.value,
-      resolution: this.$resolution.value,
-      maxRepeat: this.$maxRepeat.value,
-      skip: this.$skip.value,
+      ctre: this.$centerX.value,
+      ctim: this.$centerY.value,
+      zm: this.$zoom.value,
+      rs: this.$resolution.value,
+      rp: this.$maxRepeat.value,
+      sp: this.$skip.value,
+      pw: this.$power.value,
     }, params)
 
     this.csre(params.csre);
@@ -422,6 +427,7 @@ class ParameterView {
     this.resolution(params.rs);
     this.maxRepeat(params.rp);
     this.skip(params.sp);
+    this.power(params.pw);
 
     this.$csre.onchange = () => { this._reset('csre'); eventer.emit('refresh') };
     this.$csim.onchange = () => { this._reset('csim'); eventer.emit('refresh') };
@@ -431,6 +437,7 @@ class ParameterView {
     this.$resolution.onchange = () => { this._reset('resolution'); eventer.emit('refresh') };
     this.$maxRepeat.onchange = () => { this._reset('maxRepeat'); eventer.emit('refresh') };
     this.$skip.onchange = () => { this._reset('skip'); eventer.emit('refresh') };
+    this.$power.onchange = () => { this._reset('power'); eventer.emit('refresh') };
   }
 
   _reset(prop) {
@@ -573,6 +580,23 @@ class ParameterView {
     }
   }
 
+  power() {
+    if (arguments.length === 0) {
+      return +this.$power.value;
+    } else {
+      let value = Number(arguments[0]);
+      if (isNaN(value)) {
+        value = 0;
+      } else if (value > this.$power.max)  {
+        value = this.$power.max;
+      } else if (value < this.$power.min)  {
+        value = this.$power.min;
+      }
+
+      this.$power.value = value;
+    }
+  }
+
   zoomIn() {
     const zoom = this.zoom();
     let value = Math.floor(zoom * Math.sqrt(2))
@@ -626,6 +650,7 @@ class OperationView {
       params.push('rs=' + this._paramView.resolution());
       params.push('rp=' + this._paramView.maxRepeat());
       params.push('sp=' + this._paramView.skip());
+      params.push('pw=' + this._paramView.power());
 
       if (this._colorPalette.preset) {
         params.push('ci=' + this._colorIndex);
@@ -1096,7 +1121,8 @@ class SnapshotsView {
       + "zoom: " + params.zoom + "\n"
       + "resolution: " + params.resolution + "\n"
       + "maxRepeat: " + params.maxRepeat + "\n"
-      + "skip: " + params.skip;
+      + "skip: " + params.skip + "\n"
+      + "power: " + params.power;
 
     const snapshots = this.$snapshots;
     const snapshot = document.createElement('div');
@@ -1124,6 +1150,7 @@ class SnapshotsView {
         this._paramView.resolution(params.resolution);
         this._paramView.maxRepeat(params.maxRepeat);
         this._paramView.skip(params.skip);
+        this._paramView.power(params.power);
 
         eventer.emit('selectColorByName', params.colorPalette.name);
         eventer.emit('refresh');
