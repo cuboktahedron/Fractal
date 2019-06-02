@@ -739,6 +739,11 @@ class ColorsetsView {
 
   _restoreFromLocalStorage() {
     const presets = JSON.parse(JSON.stringify(PresetColorPalettes));
+    if (typeof window.localStorage === 'undefined') {
+      this._colorPalettes = presets;
+      return;
+    }
+
     const colorpalettes = localStorage.getItem('colorPalettes');
     if (colorpalettes == null) {
       this._colorPalettes = presets;
@@ -750,6 +755,10 @@ class ColorsetsView {
   }
 
   _saveToLocalStore() {
+    if (typeof window.localStorage === 'undefined') {
+      return;
+    }
+
     const colorPalettes = JSON.stringify(this._colorPalettes);
     localStorage.setItem('colorPalettes', colorPalettes);
   }
