@@ -68,7 +68,6 @@ class CanvasView {
 
       data.$canvas = this.$canvas;
       data.params = {
-        cs: new MutableComplex(this._paramView.csre(), this._paramView.csim()),
         center: new MutableComplex(this._paramView.centerX(), this._paramView.centerY()),
         zoom: this._paramView.zoom(),
         resolution: this._paramView.resolution(),
@@ -82,8 +81,7 @@ class CanvasView {
     });
 
     eventer.on('downloadImage', () => {
-      const filename = "cs_" + this._paramView.csre() + '+' + this._paramView.csim() + 'i '
-        + "ct_" + this._paramView.centerX() + '+' + this._paramView.centerY() + 'i '
+      const filename = "ct_" + this._paramView.centerX() + '+' + this._paramView.centerY() + 'i '
         + "zm_" + this._paramView.zoom() + ' '
         + "rs_" + this._paramView.resolution() + ' '
         + "rp_" + this._paramView.maxRepeat() + ' '
@@ -140,10 +138,6 @@ class CanvasView {
         return;
       }
 
-      if (downed === 0 && (ev.shiftKey || this._operationView.shifted())) {
-        downed = 2;
-      }
-
       const zoom = this._paramView.zoom();
 
       if (downed === 0) { // left button
@@ -155,19 +149,6 @@ class CanvasView {
         this._paramView.centerY(newCenterY);
   
         eventer.emit('refresh', true);
-        return;
-      }
-  
-      if (downed === 2) { // right button
-        const csre = this._paramView.csre();
-        const csim = this._paramView.csim();
-        const newCsre = csre + (ev.movementX / (zoom * 10));
-        const newCsim = csim + (ev.movementY / (zoom * 10));
-        this._paramView.csre(newCsre);
-        this._paramView.csim(newCsim);
-  
-        eventer.emit('refresh', true);
-  
         return;
       }
     }
@@ -217,7 +198,6 @@ class CanvasView {
     }
 
     const params = {
-      cs: new MutableComplex(this._paramView.csre(), this._paramView.csim()),
       center: new MutableComplex(this._paramView.centerX(), this._paramView.centerY()),
       zoom: this._paramView.zoom(),
       resolution: resolution,
@@ -397,8 +377,6 @@ class ParameterView {
   constructor() {
     this.$centerX = document.getElementById('center-x');
     this.$centerY = document.getElementById('center-y');
-    this.$csre = document.getElementById('cs-re');
-    this.$csim = document.getElementById('cs-im');
     this.$zoom = document.getElementById('zoom');
     this.$resolution = document.getElementById('resolution');
     this.$maxRepeat = document.getElementById('max-Repeat');
@@ -408,8 +386,6 @@ class ParameterView {
 
   init(params) {
     params = Object.assign({}, {
-      csre: this.$csre.value,
-      csim: this.$csim.value,
       ctre: this.$centerX.value,
       ctim: this.$centerY.value,
       zm: this.$zoom.value,
@@ -419,8 +395,6 @@ class ParameterView {
       pw: this.$power.value,
     }, params)
 
-    this.csre(params.csre);
-    this.csim(params.csim);
     this.centerX(params.ctre);
     this.centerY(params.ctim);
     this.zoom(params.zm);
@@ -429,8 +403,6 @@ class ParameterView {
     this.skip(params.sp);
     this.power(params.pw);
 
-    this.$csre.onchange = () => { this._reset('csre'); eventer.emit('refresh') };
-    this.$csim.onchange = () => { this._reset('csim'); eventer.emit('refresh') };
     this.$centerX.onchange = () => { this._reset('centerX'); eventer.emit('refresh') };
     this.$centerY.onchange = () => { this._reset('centerY'); eventer.emit('refresh') };
     this.$zoom.onchange = () => { this._reset('zoom'); eventer.emit('refresh') };
@@ -442,40 +414,6 @@ class ParameterView {
 
   _reset(prop) {
     this[prop](this[prop]());
-  }
-
-  csre() {
-    if (arguments.length === 0) {
-      return +this.$csre.value;
-    } else {
-      let value = Number(arguments[0]);
-      if (isNaN(value)) {
-        value = 0;
-      } else if (value > this.$csre.max) {
-        value = this.$csre.max;
-      } else if (value < this.$csre.min) {
-        value = this.$csre.min;
-      }
-
-      this.$csre.value = value;
-    }
-  }
-
-  csim() {
-    if (arguments.length === 0) {
-      return +this.$csim.value;
-    } else {
-      let value = Number(arguments[0]);
-      if (isNaN(value)) {
-        value = 0;
-      } else if (value > this.$csim.max) {
-        value = this.$csim.max;
-      } else if (value < this.$csim.min) {
-        value = this.$csim.min;
-      }
-
-      this.$csim.value = value;
-    }
   }
 
   centerX() {
@@ -627,7 +565,6 @@ class OperationView {
     this.$download = document.getElementById('op-download');
     this.$url = document.getElementById('op-url');
     this.$txUrl = document.getElementById('tx-url');
-    this.$chkShift = document.getElementById('chk-shift');
   }
 
   init() {
@@ -642,8 +579,6 @@ class OperationView {
 
     this.$url.onclick = () => {
       const params = [];
-      params.push('csre=' + this._paramView.csre());
-      params.push('csim=' + this._paramView.csim());
       params.push('ctre=' + this._paramView.centerX());
       params.push('ctim=' + this._paramView.centerY());
       params.push('zm=' + this._paramView.zoom());
@@ -663,10 +598,6 @@ class OperationView {
       this.$txUrl.select();
       document.execCommand('copy')
     }
-  }
-
-  shifted() {
-    return this.$chkShift.checked;
   }
 };
 
@@ -1131,8 +1062,7 @@ class SnapshotsView {
 
     const image = new Image();
     image.src = sumbnailCanvas.toDataURL();
-    image.title = "cs: " + params.cs.toString() + "\n"
-      + "center: " + params.center + "\n"
+    image.title = "center: " + params.center + "\n"
       + "zoom: " + params.zoom + "\n"
       + "resolution: " + params.resolution + "\n"
       + "maxRepeat: " + params.maxRepeat + "\n"
@@ -1157,8 +1087,6 @@ class SnapshotsView {
       };
 
       image.onclick = () => {
-        this._paramView.csre(params.cs.re);
-        this._paramView.csim(params.cs.im);
         this._paramView.centerX(params.center.re);
         this._paramView.centerY(params.center.im);
         this._paramView.zoom(params.zoom);
