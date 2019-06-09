@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Mandelbrot Set Maker</title>
+<meta charset="utf-8">
+<meta name="description" content="You can make beautiful Mandelbrot Set images.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+
+<div id="canvas-parent">
+  <canvas id="canvas" width="2400" height="2400"></canvas>
+</div>
+<div id="side">
+  <div class="parameters">
+    <div class="parameter">
+      <p class="lt">c&nbsp;=&nbsp;</p>
+      <p class="rt"><input id="cs-re" type="text" value="-0.0" min="-3" max="3"> + <input id="cs-im" type="text" value="0.0" min="-3" max="3">i</p>
+    </div>
+    <div class="parameter">
+      <p class="lt">center&nbsp;=&nbsp;</p>
+      <p class="rt"><input id="center-x" type="text" value="0.00" min="-3" max="3"> + <input id="center-y" type="text" value="0.00" min="-3" max="3">i</p>
+    </div>
+    <div class="parameter">
+      <p class="lt">zoom&nbsp;=&nbsp;</p>
+      <p class="rt"><input id="zoom" type="number" value="100" step="1" min="1" max="1000000000000">%</p>
+    </div>
+    <div class="parameter">
+      <p class="lt">resolution&nbsp;=&nbsp;</p>
+      <p class="rt"><input id="resolution" type="number" value="75" step="1" min="1" max="2400"></p>
+    </div>
+    <div class="parameter">
+      <p class="lt">maxRepeat&nbsp;=&nbsp;</p>
+      <p class="rt"><input id="max-Repeat" type="number" value="500" step="1" min="1" max="10000000"></p>
+    </div>
+    <div class="parameter">
+      <p class="lt">skip&nbsp;=&nbsp;</p>
+      <p class="rt"><input id="skip" type="number" value="0" step="1" min="0" max="10000000"></p>
+    </div>
+    <div class="parameter">
+      <p class="lt">power&nbsp;=&nbsp;</p>
+      <p class="rt"><input id="power" type="number" value="2" step="1" min="2" max="9"></p>
+    </div>
+  </div>
+  <div id="operation">
+    <label for="chk-shift"><input id="chk-shift" type="checkbox">Change drag mode</label><br>
+    <input id="op-fullscreen" type="button" value="FullScreen">
+    <input id="op-save" type="button" value="Save">
+    <input id="op-download" type="button" value="Download"><br>
+    <input id="op-url" type="button" value="Url"><input id="tx-url" type="text" readonly="true">
+  </div>
+  <div id="notice">
+  </div>
+  <div id="colorsets">
+    <select id="sel-colors"></select>
+    <div id="colorsets-buttons">
+      <input id="op-edit-color" type="button" value="edit">
+      <input id="op-del-color" type="button" value="del">
+    </div>
+    <div id="color-types">
+      <select id="color-type">
+        <option value="rgb">RGB</option>
+        <option value="hsv">HSV</option>
+      </select>
+      <div id="color-type-checks-rgb">
+        <label><input id="chk-rgb-r" type="checkbox">R</label>
+        <label><input id="chk-rgb-g" type="checkbox">G</label>
+        <label><input id="chk-rgb-b" type="checkbox">B</label>
+      </div>
+      <div id="color-type-checks-hsv">
+        <label><input id="chk-hsv-h" type="checkbox">H</label>
+        <label><input id="chk-hsv-s" type="checkbox">S</label>
+        <label><input id="chk-hsv-v" type="checkbox">V</label>
+      </div>
+    </div>
+    <div id="special-colors">
+      <div id="background-color"></div>
+      <div id="final-color"></div>
+    </div>
+    <div id="color-info"></div>
+    <div id="ordinal-colors"></div>
+    <input id="color-picker" type="color">
+  </div>
+</div>
+<div id="snapshots-parent">
+  <div id="snapshots"></div>
+</div>
+
+<div id="custom-colorset">
+  <div id="inner-custom-colorset">
+    <form>
+      <div class="parameters">
+         <div class="parameter">
+           <div class="lt">name&nbsp;:&nbsp;</div><div class="rt"><input class="name" maxlength="16"></div>
+         </div>
+         <div class="parameter">
+           <div class="lt">num&nbsp;:&nbsp;</div><div class="rt"><input class="color-num" type="number" min="1" max="256" step="1" value="16"></div>
+        </div>
+      </div>
+      <div>
+        <button type="submit" class="ok">Ok</button>
+        <button type="button" class="cancel">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="../js/utils.js"></script>
+<script src="../js/colorConvs.js"></script>
+<script src="../js/colorsets.js"></script>
+<script src="js/views.js"></script>
+<script src="js/mandelbrot.js"></script>
+
+<a id="download-anchor"></a>
+</body>
+</html>

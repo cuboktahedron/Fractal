@@ -1,0 +1,260 @@
+@charset "utf-8";
+
+html, body,
+h1, h2, h3, h4, h5, h6,
+a, p, span,
+code, pre,
+ol, ul, li, dl, dt, dd,
+div, img
+canvas
+table, caption,
+tbody, tfoot, thead,
+tr, th, td {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+body {
+  background: black;
+  color: white;
+  margin: 0;
+  padding: 4px;
+}
+
+#canvas-parent {
+  border: 8px solid white;
+  float: left;
+  height: 600px;
+}
+
+#canvas {
+  height: 600px;
+  width: 600px;
+}
+
+#canvas:hover {
+  cursor: crosshair;
+}
+
+#side {
+  float: left;
+  min-width: 450px;
+  max-width: 600px;
+  padding: 4px;
+}
+
+#side > div {
+  margin-bottom: 16px;
+}
+
+#side .parameters {
+  display: table;
+  width: 100%;
+  margin: 0 auto;
+}
+
+#side .parameter {
+  display: table-row;
+}
+
+#side .parameter input[type="text"] {
+  margin: 4px 2px;
+  width: 150px;
+}
+
+#side .parameter .lt {
+  display: table-cell;
+  text-align: right;
+}
+
+#side .parameter .rt {
+  display: table-cell;
+  text-align: left;
+}
+
+#snapshots-parent {
+  width: 100%;
+}
+
+#snapshots {
+  clear: both;
+  padding: 0;
+  margin: 0;
+}
+
+#snapshots .snapshot {
+  box-sizing: border-box;
+  display: block;
+  float: left;
+  height: 104px;
+  margin: 2px 4px;
+  position: relative;
+  width: 100px;
+}
+
+#snapshots .snapshot:hover {
+  border: dashed 2px white;
+  cursor: pointer;
+}
+
+#snapshots .snapshot .del {
+  background: white;
+  border: dashed 1px black;
+  color: black;
+  height: 20px;
+  line-height: 20px;
+  position: absolute;
+  right: 2px;
+  text-align: center;
+  top: 2px;
+  width: 20px;
+}
+
+#snapshots .snapshot .del:hover {
+  background: black;
+  color: white;
+  cursor: pointer;
+}
+
+#download-anchor {
+  display: none;
+}
+
+#special-colors {
+  clear: both;
+  float: left;
+}
+
+#ordinal-colors {
+  clear: both;
+}
+
+#special-colors, #ordinal-colors {
+  border-collapse: collapse;
+  display: table;
+  margin-bottom: 4px;
+}
+
+#color-info {
+  float: left;
+  height: 32px;
+  line-height: 32px;
+  margin-left: 4px;
+  width: 200px;
+}
+
+#background-color, #final-color {
+  background: green;
+  border: solid 1px white;
+  box-sizing: border-box;
+  display: table-cell;
+  height: 32px;
+  width: 32px;
+}
+
+#colorsets-buttons {
+  margin-bottom: 4px;
+}
+
+#color-type {
+  display: block;
+  margin-bottom: 4px;
+  float: left;
+  width: 75px;
+}
+
+#color-type-checks-rgb,
+#color-type-checks-hsv {
+  display: none;
+  float: left;
+}
+
+#color-type-checks-rgb.active,
+#color-type-checks-hsv.active {
+  display: block;
+}
+
+#ordinal-colors .ordinal-colors-row {
+  display: table-row;
+}
+
+#ordinal-colors .ordinal-color {
+  background: green;
+  border: solid 1px white;
+  box-sizing: border-box;
+  display: table-cell;
+  height: 16px;
+  width: 16px;
+}
+
+#ordinal-colors .ordinal-color.select {
+  border: dotted 4px white;
+}
+
+#sel-colors {
+  display: block;
+}
+
+#sel-colors option.preset {
+  background: pink;
+}
+
+#color-setting {
+  background: #fff8;
+  height: 100%;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
+#color-picker {
+  display: none;
+}
+
+#custom-colorset {
+  background: #fff8;
+  display: none;
+  height: 100%;
+  text-align: center;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
+#inner-custom-colorset {
+  background: black;
+  border-top: solid 1px white;
+  border-bottom: solid 1px white;
+  bottom: 0;
+  left: 0;
+  height: 80px;
+  padding: 16px;
+  position: absolute;
+  margin: auto;
+  right: 0;
+  top: 0;
+}
+
+#inner-custom-colorset .parameters {
+  border-spacing: 2px;
+  display: table;
+  margin: 0 auto;
+  width: 300px;
+}
+
+#inner-custom-colorset .parameter {
+  display: table-row;
+}
+
+#inner-custom-colorset div.lt {
+  display: table-cell;
+  text-align: right;
+}
+
+#inner-custom-colorset div.rt {
+  display: table-cell;
+  text-align: left;
+}
