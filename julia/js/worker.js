@@ -6,7 +6,7 @@ onmessage = (e) => {
     return baseURL + relativePath;
   }
   
-  const url = absoluteUrl(e.data.href, 'js/utils.js');
+  const url = absoluteUrl(e.data.href, '../js/utils.js');
   importScripts(url);
 
   const output = calculation(e.data);
