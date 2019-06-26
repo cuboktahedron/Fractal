@@ -51,7 +51,7 @@ const calculation = (param) => {
           zi = zi.mul(zi).add(c);
         } else {
           const zi0 = new MutableComplex(zi.re, zi.im);
-          for (let p = 0; p < power; p++) {
+          for (let p = 1; p < power; p++) {
             zi = zi.mul(zi0);
           }
           zi.add(c);
